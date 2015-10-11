@@ -27,19 +27,14 @@
 from __future__ import absolute_import, print_function
 
 import os
+
 import pkg_resources
-
-
-from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.local import LocalProxy
 
 from .cli import db as db_cmd
 from .shared import db
 
 
 class InvenioDB(object):
-
     """Invenio database extension."""
 
     def __init__(self, app=None, **kwargs):

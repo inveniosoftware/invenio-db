@@ -31,6 +31,8 @@
 #  check-manifest -c
 
 # added by check_manifest.py
+include .dockerignore
+include .editorconfig
 include *.rst
 include *.sh
 include *.txt

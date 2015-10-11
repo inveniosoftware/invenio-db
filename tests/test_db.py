@@ -27,23 +27,16 @@
 from __future__ import absolute_import, print_function
 
 import importlib
-import json
-import os
-
-from click.testing import CliRunner
-
-from flask import Flask
-
-from flask_cli import FlaskCLI, ScriptInfo
-
-from invenio_db import db, InvenioDB
-from invenio_db.cli import db as db_cmd
 
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
-
+from click.testing import CliRunner
+from flask import Flask
+from flask_cli import FlaskCLI, ScriptInfo
 from mock import patch
 from pkg_resources import EntryPoint
+
+from invenio_db import InvenioDB, db
+from invenio_db.cli import db as db_cmd
 
 
 class MockEntryPoint(EntryPoint):

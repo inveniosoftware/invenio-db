@@ -38,15 +38,6 @@ Next, initialize your extension:
     >>> db = InvenioDB(app)
 
 
-Registering bases
-~~~~~~~~~~~~~~~~~
-After having initialized the extension you can register ORM bases:
-
-    >>> from sqlalchemy.orm import declarative_base
-    >>> Base = declarative_base
-    >>> db._bind('mybundle', Base)
-
-
 Command-line interface
 ~~~~~~~~~~~~~~~~~~~~~~
 Invenio-DB installs ``db`` command group on your application:
@@ -64,7 +55,7 @@ from .shared import db
 from .version import __version__
 
 __all__ = (
-    'InvenioDB',
     '__version__',
     'db',
+    'InvenioDB',
 )

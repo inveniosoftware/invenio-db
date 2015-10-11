@@ -26,15 +26,18 @@
 
 from __future__ import absolute_import, print_function
 
-import json
-import logging
-import pkg_resources
+import sys
 
 import click
-from flask import current_app
+from click import _termui_impl
 from flask_cli import with_appcontext
+from sqlalchemy_utils.functions import create_database, drop_database
 
 from .shared import db as _db
+
+# Fix Python 3 compatibility issue in click
+if sys.version_info > (3,):
+    _termui_impl.long = int
 
 
 def abort_if_false(ctx, param, value):
@@ -42,34 +45,60 @@ def abort_if_false(ctx, param, value):
     if not value:
         ctx.abort()
 
+
 #
 # Database commands
 #
-
 @click.group(chain=True)
 def db():
     """Database commands."""
 
 
 @db.command()
+@click.option('-v', '--verbose', is_flag=True, default=False)
 @with_appcontext
-def create():
+def create(verbose):
     """Create tables."""
     click.secho('Creating all tables!', bg='yellow', bold=True)
     with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
         for table in bar:
+            if verbose:
+                click.echo(" Creating table {0}".format(table))
+            table.create(bind=_db.engine, checkfirst=True)
+    click.secho('Created all tables!', bg='green')
+
+
+@db.command()
+@click.option('-v', '--verbose', is_flag=True, default=False)
+@click.option('--yes-i-know', is_flag=True, callback=abort_if_false,
+              expose_value=False,
+              prompt='Do you know that you are going to drop the db?')
+@with_appcontext
+def drop(verbose):
+    """Drop tables."""
+    click.secho('Dropping all tables!', bg='red', bold=True)
+    with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
+        for table in bar:
+            if verbose:
+                click.echo(" Dropping table {0}".format(table))
             table.drop(bind=_db.engine, checkfirst=True)
     click.secho('Dropped all tables!', bg='green')
 
 
 @db.command()
+@with_appcontext
+def init():
+    """Create database."""
+    click.echo("Creating database {0}".format(_db.engine.url))
+    create_database(_db.engine.url)
+
+
+@db.command()
 @click.option('--yes-i-know', is_flag=True, callback=abort_if_false,
               expose_value=False,
-              prompt='Do you know that you are going to drop the db?')
+              prompt='Do you know that you are going to destroy the db?')
 @with_appcontext
-def drop():
-    click.secho('Dropping all tables!', bg='red', bold=True)
-    with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
-        for table in bar:
-            table.drop(bind=_db.engine, checkfirst=True)
-    click.secho('Dropped all tables!', bg='green')
+def destroy():
+    """Drop database."""
+    click.echo("Destroying database {0}".format(_db.engine.url))
+    drop_database(_db.engine.url)

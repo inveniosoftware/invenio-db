@@ -30,4 +30,3 @@ from invenio_db import db
 class Parent(db.Model):
     __tablename__ = 'parent'
     pk = db.Column(db.Integer, primary_key=True)
-

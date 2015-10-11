@@ -29,11 +29,7 @@ API Docs
    :members:
    :undoc-members:
 
-.. automodule:: invenio_db.bower
-   :members:
-   :undoc-members:
-
-.. automodule:: invenio_db.filters
+.. automodule:: invenio_db.shared
    :members:
    :undoc-members:
 

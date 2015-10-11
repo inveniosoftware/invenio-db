@@ -26,7 +26,6 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 """Shared database instance using Flask-SQLAlchemy extension.
 
