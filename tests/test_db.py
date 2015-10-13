@@ -22,11 +22,12 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Test BowerBundle."""
+"""Test database integration layer."""
 
 from __future__ import absolute_import, print_function
 
 import importlib
+import os
 
 import sqlalchemy as sa
 from click.testing import CliRunner
@@ -34,6 +35,7 @@ from flask import Flask
 from flask_cli import FlaskCLI, ScriptInfo
 from mock import patch
 from pkg_resources import EntryPoint
+from sqlalchemy_utils.functions import create_database, drop_database
 
 from invenio_db import InvenioDB, db
 from invenio_db.cli import db as db_cmd
@@ -60,9 +62,11 @@ def _mock_entry_points(name):
 
 def test_init():
     app = Flask('demo')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+        'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
+    )
     FlaskCLI(app)
-    InvenioDB(app)
+    InvenioDB(app, entrypoint_name=False)
 
     class Demo(db.Model):
         __tablename__ = 'demo'
@@ -73,9 +77,11 @@ def test_init():
         pk = sa.Column(sa.Integer, primary_key=True)
 
     with app.app_context():
+        create_database(db.engine.url)
         db.create_all()
         assert len(db.metadata.tables) == 2
         db.drop_all()
+        drop_database(db.engine.url)
 
 
 @patch('pkg_resources.iter_entry_points', _mock_entry_points)
@@ -87,7 +93,9 @@ def test_entry_points(script_info):
     db = invenio_db.db = shared.db = SQLAlchemy()
 
     app = Flask('demo')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+        'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
+    )
     FlaskCLI(app)
     InvenioDB(app)
 
@@ -101,10 +109,13 @@ def test_entry_points(script_info):
         result = runner.invoke(db_cmd, [], obj=script_info)
         assert result.exit_code == 0
 
+        result = runner.invoke(db_cmd, ['init'], obj=script_info)
+        assert result.exit_code == 0
+
         result = runner.invoke(db_cmd, ['create'], obj=script_info)
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop'],
+        result = runner.invoke(db_cmd, ['drop', '-v'],
                                obj=script_info)
         assert result.exit_code == 1
 
@@ -112,10 +123,18 @@ def test_entry_points(script_info):
                                obj=script_info)
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop', 'create'],
+        result = runner.invoke(db_cmd, ['drop', 'create', '-v'],
                                obj=script_info)
         assert result.exit_code == 1
 
         result = runner.invoke(db_cmd, ['drop', '--yes-i-know', 'create'],
+                               obj=script_info)
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ['destroy'],
+                               obj=script_info)
+        assert result.exit_code == 1
+
+        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'],
                                obj=script_info)
         assert result.exit_code == 0

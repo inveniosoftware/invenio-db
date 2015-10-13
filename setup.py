@@ -47,7 +47,13 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        "Sphinx>=1.3",
+        'Sphinx>=1.3',
+    ],
+    'mysql': [
+        'pymysql>=0.6.7',
+    ],
+    'postgresql': [
+        'psycopg2>=2.6.1',
     ],
     'tests': tests_require,
 }

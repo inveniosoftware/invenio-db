@@ -37,7 +37,7 @@ from .shared import db as _db
 
 # Fix Python 3 compatibility issue in click
 if sys.version_info > (3,):
-    _termui_impl.long = int
+    _termui_impl.long = int  # pragma: no cover
 
 
 def abort_if_false(ctx, param, value):
@@ -59,13 +59,13 @@ def db():
 @with_appcontext
 def create(verbose):
     """Create tables."""
-    click.secho('Creating all tables!', bg='yellow', bold=True)
+    click.secho('Creating all tables!', fg='yellow', bold=True)
     with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
         for table in bar:
             if verbose:
-                click.echo(" Creating table {0}".format(table))
+                click.echo(' Creating table {0}'.format(table))
             table.create(bind=_db.engine, checkfirst=True)
-    click.secho('Created all tables!', bg='green')
+    click.secho('Created all tables!', fg='green')
 
 
 @db.command()
@@ -76,21 +76,22 @@ def create(verbose):
 @with_appcontext
 def drop(verbose):
     """Drop tables."""
-    click.secho('Dropping all tables!', bg='red', bold=True)
+    click.secho('Dropping all tables!', fg='red', bold=True)
     with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
         for table in bar:
             if verbose:
-                click.echo(" Dropping table {0}".format(table))
+                click.echo(' Dropping table {0}'.format(table))
             table.drop(bind=_db.engine, checkfirst=True)
-    click.secho('Dropped all tables!', bg='green')
+    click.secho('Dropped all tables!', fg='green')
 
 
 @db.command()
 @with_appcontext
 def init():
     """Create database."""
-    click.echo("Creating database {0}".format(_db.engine.url))
-    create_database(_db.engine.url)
+    click.secho('Creating database {0}'.format(_db.engine.url),
+                fg='green')
+    create_database(str(_db.engine.url))
 
 
 @db.command()
@@ -100,5 +101,6 @@ def init():
 @with_appcontext
 def destroy():
     """Drop database."""
-    click.echo("Destroying database {0}".format(_db.engine.url))
+    click.secho('Destroying database {0}'.format(_db.engine.url),
+                fg='red', bold=True)
     drop_database(_db.engine.url)
