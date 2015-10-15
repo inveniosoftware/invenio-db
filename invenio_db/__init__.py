@@ -40,11 +40,48 @@ Next, initialize your extension:
 
 Command-line interface
 ~~~~~~~~~~~~~~~~~~~~~~
-Invenio-DB installs ``db`` command group on your application:
+Invenio-DB installs the ``db`` command group on your application with the
+following commands:
 
  * ``create`` - Create database tables.
  * ``drop`` - Drop database tables.
- * ``recreate`` - Recreate database tables.
+ * ``init`` - Initialize database.
+ * ``destroy`` - Destroy database.
+
+Models
+~~~~~~
+
+Database models are created by inheriting from the declarative base
+``db.Model``:
+
+.. code-block:: python
+
+   # models.py
+   from invenio_db import db
+
+   class User(db.Model):
+       id = db.Column(db.Integer, primary_key=True)
+       username = db.Column(db.String(80), unique=True)
+       email = db.Column(db.String(120), unique=True)
+
+Setuptools integration
+~~~~~~~~~~~~~~~~~~~~~~
+In order for the CLI commands to be aware of your models, you must either
+import your models in the application factory, or better simply specify the
+entry point ``invenio_db.models``. Invenio-DB then takes care of loading the
+models automatically:
+
+.. code-block:: python
+
+   # setup.py
+   # ...
+   setup(
+       entry_points={
+           'invenio_db.models': [
+               'mymodule = mymodule.models',
+           ],
+       },
+   )
 
 """
 
