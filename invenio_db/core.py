@@ -39,12 +39,14 @@ class InvenioDB(object):
 
     def __init__(self, app=None, **kwargs):
         """Extension initialization."""
+        self.kwargs = kwargs
         if app:
             self.init_app(app, **kwargs)
 
     def init_app(self, app, **kwargs):
         """Initialize application object."""
-        self.init_db(app, **kwargs)
+        self.kwargs.update(kwargs)
+        self.init_db(app, **self.kwargs)
         app.extensions['invenio-db'] = self
         app.cli.add_command(db_cmd)
 
