@@ -60,7 +60,7 @@ def db():
 def create(verbose):
     """Create tables."""
     click.secho('Creating all tables!', fg='yellow', bold=True)
-    with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
+    with click.progressbar(_db.metadata.sorted_tables) as bar:
         for table in bar:
             if verbose:
                 click.echo(' Creating table {0}'.format(table))

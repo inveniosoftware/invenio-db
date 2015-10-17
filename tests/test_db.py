@@ -42,7 +42,10 @@ from invenio_db.cli import db as db_cmd
 
 
 class MockEntryPoint(EntryPoint):
+    """Mocking of entrypoint."""
+
     def load(self):
+        """Mock load entry point."""
         if self.name == 'importfail':
             raise ImportError()
         else:
@@ -61,6 +64,7 @@ def _mock_entry_points(name):
 
 
 def test_init():
+    """Test extension initialization."""
     app = Flask('demo')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
         'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
@@ -75,6 +79,7 @@ def test_init():
     class Demo2(db.Model):
         __tablename__ = 'demo2'
         pk = sa.Column(sa.Integer, primary_key=True)
+        fk = sa.Column(sa.Integer, sa.ForeignKey(Demo.pk))
 
     with app.app_context():
         create_database(db.engine.url)
