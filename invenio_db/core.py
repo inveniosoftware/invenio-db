@@ -29,6 +29,7 @@ from __future__ import absolute_import, print_function
 import os
 
 import pkg_resources
+import sqlalchemy as sa
 
 from .cli import db as db_cmd
 from .shared import db
@@ -66,3 +67,5 @@ class InvenioDB(object):
         if entrypoint_name:
             for base_entry in pkg_resources.iter_entry_points(entrypoint_name):
                 base_entry.load()
+
+        sa.orm.configure_mappers()
