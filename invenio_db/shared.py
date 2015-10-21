@@ -24,7 +24,25 @@
 
 """Shared database object for Invenio."""
 
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
+
+
+class SQLAlchemy(FlaskSQLAlchemy):
+    """Implement or overide extension methods."""
+
+    def apply_driver_hacks(self, app, info, options):
+        """Called before engine creation."""
+        # Don't forget to apply hacks defined on parent object.
+        super(SQLAlchemy, self).apply_driver_hacks(app, info, options)
+
+        if info.drivername == 'sqlite':
+            connect_args = options.setdefault('connect_args', {})
+
+            if 'isolation_level' not in connect_args:
+                # disable pysqlite's emitting of the BEGIN statement entirely.
+                # also stops it from emitting COMMIT before any DDL.
+                connect_args['isolation_level'] = None
+
 
 db = SQLAlchemy()
 """Shared database instance using Flask-SQLAlchemy extension.
