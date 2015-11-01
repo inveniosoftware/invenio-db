@@ -133,6 +133,9 @@ setup(
         'invenio_base.apps': [
             'invenio_db = invenio_db:InvenioDB',
         ],
+        'invenio_base.api_apps': [
+            'invenio_db = invenio_db:InvenioDB',
+        ],
     },
     extras_require=extras_require,
     install_requires=install_requires,
