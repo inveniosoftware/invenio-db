@@ -51,7 +51,7 @@ class InvenioDB(object):
         app.extensions['invenio-db'] = self
         app.cli.add_command(db_cmd)
 
-    def init_db(self, app, entrypoint_name='invenio_db.models', **kwargs):
+    def init_db(self, app, entry_point_group='invenio_db.models', **kwargs):
         """Initialize Flask-SQLAlchemy extension."""
         # Setup SQLAlchemy
         app.config.setdefault(
@@ -64,8 +64,9 @@ class InvenioDB(object):
         db.init_app(app)
 
         # Initialize model bases
-        if entrypoint_name:
-            for base_entry in pkg_resources.iter_entry_points(entrypoint_name):
+        if entry_point_group:
+            for base_entry in pkg_resources.iter_entry_points(
+                    entry_point_group):
                 base_entry.load()
 
         sa.orm.configure_mappers()

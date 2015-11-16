@@ -70,7 +70,7 @@ def test_init():
         'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
     )
     FlaskCLI(app)
-    InvenioDB(app, entrypoint_name=False)
+    InvenioDB(app, entry_point_group=False)
 
     class Demo(db.Model):
         __tablename__ = 'demo'
