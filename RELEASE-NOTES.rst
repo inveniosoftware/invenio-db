@@ -2,7 +2,7 @@
  Invenio-DB v1.0.0
 ===================
 
-Invenio-DB v1.0.0 was released on November 1, 2015.
+Invenio-DB v1.0.0 was released on November 18, 2015.
 
 About
 -----
