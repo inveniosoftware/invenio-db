@@ -29,12 +29,14 @@ from __future__ import absolute_import, print_function
 import importlib
 import os
 
+import pytest
 import sqlalchemy as sa
 from click.testing import CliRunner
 from flask import Flask
 from flask_cli import FlaskCLI, ScriptInfo
 from mock import patch
 from pkg_resources import EntryPoint
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils.functions import create_database, drop_database
 
 from invenio_db import InvenioDB, db
@@ -85,6 +87,20 @@ def test_init():
         create_database(db.engine.url)
         db.create_all()
         assert len(db.metadata.tables) == 2
+
+        # Test foreign key constraint checking
+        d1 = Demo()
+        db.session.add(d1)
+        d2 = Demo2(fk=d1.pk)
+        db.session.add(d2)
+        db.session.commit()
+
+        # Fails fk check
+        d3 = Demo2(fk=10)
+        db.session.add(d3)
+        pytest.raises(IntegrityError, db.session.commit)
+        db.session.rollback()
+
         db.drop_all()
         drop_database(db.engine.url)
 

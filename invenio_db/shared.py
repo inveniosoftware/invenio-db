@@ -25,6 +25,8 @@
 """Shared database object for Invenio."""
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
@@ -42,6 +44,20 @@ class SQLAlchemy(FlaskSQLAlchemy):
                 # disable pysqlite's emitting of the BEGIN statement entirely.
                 # also stops it from emitting COMMIT before any DDL.
                 connect_args['isolation_level'] = None
+
+            event.listen(Engine, "connect", do_sqlite_connect)
+
+
+def do_sqlite_connect(dbapi_connection, connection_record):
+    """Ensure SQLite checks foreign key constraints.
+
+    For further details see "Foreign key support" sections on
+    http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html
+    """
+    # Enable foreign key constraint checking
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 db = SQLAlchemy()
