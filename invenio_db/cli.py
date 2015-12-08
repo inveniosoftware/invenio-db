@@ -31,7 +31,8 @@ import sys
 import click
 from click import _termui_impl
 from flask_cli import with_appcontext
-from sqlalchemy_utils.functions import create_database, drop_database
+from sqlalchemy_utils.functions import create_database, database_exists, \
+    drop_database
 
 from .shared import db as _db
 
@@ -91,7 +92,8 @@ def init():
     """Create database."""
     click.secho('Creating database {0}'.format(_db.engine.url),
                 fg='green')
-    create_database(str(_db.engine.url))
+    if not database_exists(str(_db.engine.url)):
+        create_database(str(_db.engine.url))
 
 
 @db.command()
