@@ -1,8 +1,8 @@
-===================
- Invenio-DB v1.0.0
-===================
+=====================
+ Invenio-DB v1.0.0a7
+=====================
 
-Invenio-DB v1.0.0 was released on November 18, 2015.
+Invenio-DB v1.0.0a7 was released on December 9, 2015.
 
 About
 -----
@@ -19,7 +19,7 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-db==1.0.0
+   $ pip install invenio-db==1.0.0a7
 
 Documentation
 -------------
