@@ -31,6 +31,8 @@ import os
 import pkg_resources
 import sqlalchemy as sa
 
+from sqlalchemy_continuum import make_versioned
+
 from .cli import db as db_cmd
 from .shared import db
 
@@ -59,6 +61,9 @@ class InvenioDB(object):
             'sqlite:///' + os.path.join(app.instance_path, app.name + '.db')
         )
         app.config.setdefault('SQLALCHEMY_ECHO', app.debug)
+        app.config.setdefault('DB_VERSIONING_USER_MODEL', None)
+        with app.app_context():
+            make_versioned(user_cls=app.config['DB_VERSIONING_USER_MODEL'])
 
         # Initialize Flask-SQLAlchemy extension.
         db.init_app(app)
