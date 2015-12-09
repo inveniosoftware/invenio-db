@@ -22,9 +22,24 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-pep257 invenio_db && \
-isort -rc -c -df **/*.py && \
-check-manifest --ignore ".travis-*" && \
-sphinx-build -qnNW docs docs/_build/html && \
-python setup.py test -a'-vv' && \
-sphinx-build -qnNW -b doctest docs docs/_build/doctest
+"""Normal and versioned models."""
+
+from invenio_db import db
+
+
+class UnversionedArticle(db.Model):
+    """Unversioned test model."""
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(length=50))
+
+
+class VersionedArticle(db.Model):
+    """Versioned test model."""
+
+    __versioned__ = {}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(length=50))

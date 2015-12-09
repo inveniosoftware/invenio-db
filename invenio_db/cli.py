@@ -30,11 +30,13 @@ import sys
 
 import click
 from click import _termui_impl
+from flask import current_app
 from flask_cli import with_appcontext
 from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
+from werkzeug.local import LocalProxy
 
-from .shared import db as _db
+_db = LocalProxy(lambda: current_app.extensions['sqlalchemy'].db)
 
 # Fix Python 3 compatibility issue in click
 if sys.version_info > (3,):

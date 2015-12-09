@@ -38,8 +38,9 @@ from mock import patch
 from pkg_resources import EntryPoint
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils.functions import create_database, drop_database
+from werkzeug.utils import import_string
 
-from invenio_db import InvenioDB, db
+from invenio_db import InvenioDB
 from invenio_db.cli import db as db_cmd
 
 
@@ -51,13 +52,19 @@ class MockEntryPoint(EntryPoint):
         if self.name == 'importfail':
             raise ImportError()
         else:
-            return importlib.import_module(self.name)
+            return import_string(self.name)
 
 
 def _mock_entry_points(name):
     data = {
         'invenio_db.models': [MockEntryPoint('demo.child', 'demo.child'),
                               MockEntryPoint('demo.parent', 'demo.parent')],
+        'invenio_db.models_a': [
+            MockEntryPoint('demo.versioned_a', 'demo.versioned_a'),
+        ],
+        'invenio_db.models_b': [
+            MockEntryPoint('demo.versioned_b', 'demo.versioned_b'),
+        ],
     }
     names = data.keys() if name is None else [name]
     for key in names:
@@ -65,15 +72,8 @@ def _mock_entry_points(name):
             yield entry_point
 
 
-def test_init():
+def test_init(db, app):
     """Test extension initialization."""
-    app = Flask('demo')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-        'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
-    )
-    FlaskCLI(app)
-    InvenioDB(app, entry_point_group=False)
-
     class Demo(db.Model):
         __tablename__ = 'demo'
         pk = sa.Column(sa.Integer, primary_key=True)
@@ -83,42 +83,41 @@ def test_init():
         pk = sa.Column(sa.Integer, primary_key=True)
         fk = sa.Column(sa.Integer, sa.ForeignKey(Demo.pk))
 
+    app.config['DB_VERSIONING'] = False
+    InvenioDB(app, entry_point_group=False, db=db)
+
     with app.app_context():
-        create_database(db.engine.url)
         db.create_all()
         assert len(db.metadata.tables) == 2
 
         # Test foreign key constraint checking
         d1 = Demo()
         db.session.add(d1)
+        db.session.flush()
+
         d2 = Demo2(fk=d1.pk)
         db.session.add(d2)
         db.session.commit()
 
+    with app.app_context():
         # Fails fk check
         d3 = Demo2(fk=10)
         db.session.add(d3)
         pytest.raises(IntegrityError, db.session.commit)
         db.session.rollback()
 
+    with app.app_context():
+        Demo2.query.delete()
+        Demo.query.delete()
+        db.session.commit()
+
         db.drop_all()
-        drop_database(db.engine.url)
 
 
 @patch('pkg_resources.iter_entry_points', _mock_entry_points)
-def test_entry_points(script_info):
+def test_entry_points(db, app):
     """Test entrypoints loading."""
-    import invenio_db
-    from invenio_db import shared
-    from flask_sqlalchemy import SQLAlchemy
-    db = invenio_db.db = shared.db = SQLAlchemy()
-
-    app = Flask('demo')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-        'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
-    )
-    FlaskCLI(app)
-    InvenioDB(app)
+    InvenioDB(app, db=db)
 
     runner = CliRunner()
     script_info = ScriptInfo(create_app=lambda info: app)
@@ -130,21 +129,25 @@ def test_entry_points(script_info):
         result = runner.invoke(db_cmd, [], obj=script_info)
         assert result.exit_code == 0
 
+        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'],
+                               obj=script_info)
+        assert result.exit_code == 0
+
         result = runner.invoke(db_cmd, ['init'], obj=script_info)
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['create'], obj=script_info)
+        result = runner.invoke(db_cmd, ['create', '-v'], obj=script_info)
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop', '-v'],
+        result = runner.invoke(db_cmd, ['drop'],
                                obj=script_info)
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['drop', '--yes-i-know'],
+        result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'],
                                obj=script_info)
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop', 'create', '-v'],
+        result = runner.invoke(db_cmd, ['drop', 'create'],
                                obj=script_info)
         assert result.exit_code == 1
 
@@ -158,4 +161,7 @@ def test_entry_points(script_info):
 
         result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'],
                                obj=script_info)
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ['init'], obj=script_info)
         assert result.exit_code == 0

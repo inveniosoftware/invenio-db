@@ -30,6 +30,7 @@ import os
 
 import pkg_resources
 import sqlalchemy as sa
+from sqlalchemy_utils.functions import get_class_by_table
 
 from .cli import db as db_cmd
 from .shared import db
@@ -40,14 +41,12 @@ class InvenioDB(object):
 
     def __init__(self, app=None, **kwargs):
         """Extension initialization."""
-        self.kwargs = kwargs
         if app:
             self.init_app(app, **kwargs)
 
     def init_app(self, app, **kwargs):
         """Initialize application object."""
-        self.kwargs.update(kwargs)
-        self.init_db(app, **self.kwargs)
+        self.init_db(app, **kwargs)
         app.extensions['invenio-db'] = self
         app.cli.add_command(db_cmd)
 
@@ -61,7 +60,11 @@ class InvenioDB(object):
         app.config.setdefault('SQLALCHEMY_ECHO', app.debug)
 
         # Initialize Flask-SQLAlchemy extension.
-        db.init_app(app)
+        database = kwargs.get('db', db)
+        database.init_app(app)
+
+        # Initialize versioning support.
+        self.init_versioning(app, database)
 
         # Initialize model bases
         if entry_point_group:
@@ -69,4 +72,51 @@ class InvenioDB(object):
                     entry_point_group):
                 base_entry.load()
 
+        # All models should be loaded by now.
         sa.orm.configure_mappers()
+
+    def init_versioning(self, app, database):
+        """Initialize the versioning support using SQLAlchemy-Continuum."""
+        try:
+            pkg_resources.get_distribution('sqlalchemy_continuum')
+        except pkg_resources.DistributionNotFound:  # pragma: no cover
+            default_versioning = False
+        else:
+            default_versioning = True
+
+        app.config.setdefault('DB_VERSIONING', default_versioning)
+
+        if not app.config['DB_VERSIONING']:
+            return
+
+        if not default_versioning:  # pragma: no cover
+            raise RuntimeError(
+                'Please install extra versioning support first by running '
+                'pip install invenio-db[versioning].'
+            )
+
+        # Now we can import SQLAlchemy-Continuum.
+        from sqlalchemy_continuum import make_versioned, VersioningManager
+
+        # Try to guess user model class:
+        if 'DB_VERSIONING_USER_MODEL' not in app.config:  # pragma: no cover
+            try:
+                pkg_resources.get_distribution('invenio_accounts')
+            except pkg_resources.DistributionNotFound:
+                user_cls = None
+            else:
+                user_cls = 'User'
+        else:
+            user_cls = app.config.get('DB_VERSIONING_USER_MODEL')
+
+        # Call make_versioned() before your models are defined.
+        self.versioning_manager = VersioningManager()
+        make_versioned(user_cls=user_cls, manager=self.versioning_manager)
+
+        # Register models that have been loaded beforehand.
+        builder = self.versioning_manager.builder
+
+        for tbl in database.metadata.tables.values():
+            builder.instrument_versioned_classes(
+                database.mapper, get_class_by_table(database.Model, tbl)
+            )

@@ -22,8 +22,7 @@
     as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 
-=======
- Usage
-=======
+Usage
+=====
 
 .. automodule:: invenio_db
