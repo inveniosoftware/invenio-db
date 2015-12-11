@@ -28,29 +28,47 @@
 from __future__ import absolute_import, print_function
 
 import os
+
 import pytest
 from flask import Flask
 from flask_cli import FlaskCLI, ScriptInfo
 
 from invenio_db import InvenioDB, db
+from invenio_db import shared
 
 
-@pytest.fixture()
-def app():
+@pytest.fixture
+def app(request):
     """Flask application fixture."""
     app = Flask(__name__)
     app.config.update(
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
-                                               'sqlite:///')
+                                               'sqlite://'),
     )
     FlaskCLI(app)
+
+    def teardown():
+        with app.app_context():
+            db.drop_all()
+
+    request.addfinalizer(teardown)
     return app
 
 
-@pytest.fixture()
-def script_info():
+@pytest.fixture
+def script_info(request):
     """Get ScriptInfo object for testing CLI."""
     app = Flask(__name__)
+    app.config.update(
+        SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
+                                               'sqlite://'),
+        DB_VERSIONING_ENABLED=False,
+    )
     FlaskCLI(app)
     InvenioDB(app)
+
+    def teardown():
+        with app.app_context():
+            db.drop_all()
+    request.addfinalizer(teardown)
     return ScriptInfo(create_app=lambda info: app)

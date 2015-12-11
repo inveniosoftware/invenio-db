@@ -28,6 +28,7 @@ from __future__ import absolute_import, print_function
 
 import importlib
 import os
+import pytest
 
 import sqlalchemy as sa
 from click.testing import CliRunner
@@ -52,22 +53,34 @@ class MockEntryPoint(EntryPoint):
             return importlib.import_module(self.name)
 
 
-def _mock_entry_points(name):
+def _mock_entry_points(group, name=None):
     data = {
-        'invenio_db.models': [MockEntryPoint('demo.child', 'demo.child'),
-                              MockEntryPoint('demo.parent', 'demo.parent')],
+        'invenio_db.models': [
+            MockEntryPoint('demo.child', 'demo.child'),
+            MockEntryPoint('demo.parent', 'demo.parent'),
+            MockEntryPoint('test_versions',
+                           'test_versions.VersionedArticle'),
+            MockEntryPoint('test_versions',
+                           'test_versions.UnversionedArticle'),
+        ],
+        'invenio_db.versioning.user_model': [
+            MockEntryPoint('test_versions', 'test_versions.VersionedUser')
+        ],
     }
-    names = data.keys() if name is None else [name]
+    names = data.keys() if group is None else [group]
     for key in names:
         for entry_point in data[key]:
-            yield entry_point
+            if name and entry_point.name.startswith(name):
+                yield entry_point
+            else:
+                yield entry_point
 
 
 def test_init():
     """Test extension initialization."""
-    app = Flask('demo')
+    app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-        'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
+        'SQLALCHEMY_DATABASE_URI', 'sqlite://'
     )
     FlaskCLI(app)
     InvenioDB(app, entrypoint_name=False)
@@ -82,32 +95,35 @@ def test_init():
         fk = sa.Column(sa.Integer, sa.ForeignKey(Demo.pk))
 
     with app.app_context():
-        create_database(db.engine.url)
         db.create_all()
-        assert len(db.metadata.tables) == 2
+        assert len(db.metadata.tables) == 7
         db.drop_all()
-        drop_database(db.engine.url)
 
 
 @patch('pkg_resources.iter_entry_points', _mock_entry_points)
+# @pytest.skip
 def test_entry_points(script_info):
     """Test entrypoints loading."""
     import invenio_db
-    from invenio_db import shared
+    # from invenio_db import shared
     from flask_sqlalchemy import SQLAlchemy
-    db = invenio_db.db = shared.db = SQLAlchemy()
+    # db = invenio_db.db = shared.db = SQLAlchemy()
 
     app = Flask('demo')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
         'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
     )
+    app.config['DB_VERSIONING_ENABLED'] = False
     FlaskCLI(app)
     InvenioDB(app)
 
     runner = CliRunner()
     script_info = ScriptInfo(create_app=lambda info: app)
 
-    assert len(db.metadata.tables) == 2
+    assert len(db.metadata.tables) == 9
+
+    with app.app_context():
+        db.create_all()
 
     # Test merging a base another file.
     with runner.isolated_filesystem():
@@ -143,3 +159,6 @@ def test_entry_points(script_info):
         result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'],
                                obj=script_info)
         assert result.exit_code == 0
+
+    with app.app_context():
+        db.drop_all()

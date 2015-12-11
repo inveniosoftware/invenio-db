@@ -24,29 +24,83 @@
 
 """Versioning tests for Invenio-DB"""
 
+import pytest
+
+from flask import Flask
+from flask_cli import FlaskCLI
+
+from mock import patch
+
+from sqlalchemy_continuum import versioning_manager
+
 from invenio_db import InvenioDB, db
 
-from sqlalchemy_continuum import make_versioned
+from test_db import _mock_entry_points
 
 
+class VersioningUser(db.Model):
+    """User model to be used with versioning."""
+
+    id = db.Column(db.Integer, primary_key=True)
+
+
+class UnversionedArticle(db.Model):
+    """Unversioned test model."""
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String)
+
+
+class VersionedArticle(db.Model):
+    """Versioned test model."""
+
+    __versioned__ = {}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String)
+
+
+@patch('pkg_resources.iter_entry_points', _mock_entry_points)
+def test_versioning_can_be_disabled(app):
+    """Test that the versioning can be disabled."""
+    app.config['DB_VERSIONING_ENABLED'] = False
+    InvenioDB(app)
+    with app.app_context():
+        db.create_all()
+
+        versioned = VersionedArticle()
+        versioned.name = 'original_name'
+        db.session.add(versioned)
+        db.session.commit()
+
+        versioned.name = 'modified_name'
+        db.session.commit()
+
+        assert not hasattr(versioned, 'versions')
+
+
+@patch('pkg_resources.iter_entry_points', _mock_entry_points)
+def test_versioning_user_model(app):
+    """Test versioning user model loads."""
+    app.config.update(DB_VERSIONING_USER_FROM_MODULE='test_versions')
+    InvenioDB(app)
+    with app.app_context():
+        db.create_all()
+
+
+@patch('pkg_resources.iter_entry_points', _mock_entry_points)
+def test_versioning_invalid_user_model(app):
+    """Test invalid versioning user model errors."""
+    app.config.update(DB_VERSIONING_USER_FROM_MODULE='invalid_module')
+    with pytest.raises(RuntimeError):
+        InvenioDB(app)
+
+
+@patch('pkg_resources.iter_entry_points', _mock_entry_points)
 def test_versioning(app):
     """Test SQLAlchemy-Continuum versioning."""
-    class UnversionedArticle(db.Model):
-        """Unversioned test model."""
-
-        id = db.Column(db.Integer, primary_key=True)
-
-        name = db.Column(db.String)
-
-    class VersionedArticle(db.Model):
-        """Versioned test model."""
-
-        __versioned__ = {}
-
-        id = db.Column(db.Integer, primary_key=True)
-
-        name = db.Column(db.String)
-
     InvenioDB(app)
     with app.app_context():
         db.create_all()

@@ -55,6 +55,9 @@ extras_require = {
     'postgresql': [
         'psycopg2>=2.6.1',
     ],
+    'versioning': [
+        'SQLAlchemy-Continuum>=1.2.1',
+    ],
     'tests': tests_require,
 }
 
@@ -71,7 +74,6 @@ install_requires = [
     'Flask-SQLAlchemy>=2.0',
     'SQLAlchemy>=1.0',
     'SQLAlchemy-Utils>=0.31.0',
-    'SQLAlchemy-Continuum>=1.2.1',
 ]
 
 packages = find_packages()
