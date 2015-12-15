@@ -24,6 +24,8 @@
 Changes
 =======
 
-Version 1.0.0a7 (released 2015-12-09)
+Version 1.0.0a8 (released 2015-12-15)
+-------------------------------------
 
 - Initial public release.
+- Versioning support using SQLAlchemy-Continuum.

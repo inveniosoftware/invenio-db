@@ -1,8 +1,8 @@
 =====================
- Invenio-DB v1.0.0a7
+ Invenio-DB v1.0.0a8
 =====================
 
-Invenio-DB v1.0.0a7 was released on December 9, 2015.
+Invenio-DB v1.0.0a8 was released on December 15, 2015.
 
 About
 -----
@@ -15,11 +15,12 @@ What's new
 ----------
 
 - Initial public release.
+- Versioning support using SQLAlchemy-Continuum.
 
 Installation
 ------------
 
-   $ pip install invenio-db==1.0.0a7
+   $ pip install invenio-db==1.0.0a8
 
 Documentation
 -------------
