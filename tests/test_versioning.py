@@ -78,12 +78,15 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
 @patch('pkg_resources.iter_entry_points', _mock_entry_points)
 def test_versioning(db, app):
     """Test SQLAlchemy-Continuum enabled versioning."""
+    from sqlalchemy_continuum import VersioningManager
+
     app.config['DB_VERSIONING'] = True
 
-    idb = InvenioDB(app, entry_point_group='invenio_db.models_b', db=db)
+    idb = InvenioDB(app, entry_point_group='invenio_db.models_b', db=db,
+                    versioning_manager=VersioningManager())
 
     with app.app_context():
-        assert 2 < len(db.metadata.tables)
+        assert 4 == len(db.metadata.tables)
 
         db.create_all()
 

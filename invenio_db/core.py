@@ -64,7 +64,7 @@ class InvenioDB(object):
         database.init_app(app)
 
         # Initialize versioning support.
-        self.init_versioning(app, database)
+        self.init_versioning(app, database, kwargs.get('versioning_manager'))
 
         # Initialize model bases
         if entry_point_group:
@@ -75,7 +75,7 @@ class InvenioDB(object):
         # All models should be loaded by now.
         sa.orm.configure_mappers()
 
-    def init_versioning(self, app, database):
+    def init_versioning(self, app, database, versioning_manager=None):
         """Initialize the versioning support using SQLAlchemy-Continuum."""
         try:
             pkg_resources.get_distribution('sqlalchemy_continuum')
@@ -96,7 +96,8 @@ class InvenioDB(object):
             )
 
         # Now we can import SQLAlchemy-Continuum.
-        from sqlalchemy_continuum import make_versioned, VersioningManager
+        from sqlalchemy_continuum import make_versioned
+        from sqlalchemy_continuum import versioning_manager as default_vm
 
         # Try to guess user model class:
         if 'DB_VERSIONING_USER_MODEL' not in app.config:  # pragma: no cover
@@ -110,7 +111,7 @@ class InvenioDB(object):
             user_cls = app.config.get('DB_VERSIONING_USER_MODEL')
 
         # Call make_versioned() before your models are defined.
-        self.versioning_manager = VersioningManager()
+        self.versioning_manager = versioning_manager or default_vm
         make_versioned(user_cls=user_cls, manager=self.versioning_manager)
 
         # Register models that have been loaded beforehand.
