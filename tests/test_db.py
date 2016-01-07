@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -26,18 +26,13 @@
 
 from __future__ import absolute_import, print_function
 
-import importlib
-import os
-
 import pytest
 import sqlalchemy as sa
 from click.testing import CliRunner
-from flask import Flask
-from flask_cli import FlaskCLI, ScriptInfo
+from flask_cli import ScriptInfo
 from mock import patch
 from pkg_resources import EntryPoint
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy_utils.functions import create_database, drop_database
 from werkzeug.utils import import_string
 
 from invenio_db import InvenioDB
