@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -45,7 +45,10 @@ class SQLAlchemy(FlaskSQLAlchemy):
                 # also stops it from emitting COMMIT before any DDL.
                 connect_args['isolation_level'] = None
 
-            event.listen(Engine, "connect", do_sqlite_connect)
+            if not event.contains(Engine, "connect", do_sqlite_connect):
+                event.listen(Engine, "connect", do_sqlite_connect)
+            if not event.contains(Engine, "begin", do_sqlite_begin):
+                event.listen(Engine, "begin", do_sqlite_begin)
 
 
 def do_sqlite_connect(dbapi_connection, connection_record):
@@ -58,6 +61,16 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+
+
+def do_sqlite_begin(dbapi_connection):
+    """Ensure SQLite transaction are started properly.
+
+    For further details see "Foreign key support" sections on
+    http://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
+    """
+    # emit our own BEGIN
+    dbapi_connection.execute("BEGIN")
 
 
 db = SQLAlchemy()

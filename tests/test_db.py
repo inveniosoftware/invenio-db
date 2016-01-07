@@ -109,6 +109,62 @@ def test_init(db, app):
         db.drop_all()
 
 
+def test_transaction(db, app):
+    """Test transcation commit and rollback.
+
+    This is necessary to make sure that pysqlite hacks are properly working.
+    """
+    class Demo(db.Model):
+        __tablename__ = 'demo'
+        pk = sa.Column(sa.Integer, primary_key=True)
+
+    app.config['DB_VERSIONING'] = False
+    InvenioDB(app, entry_point_group=False, db=db)
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        assert len(db.metadata.tables) == 1
+
+    # Test rollback
+    with app.app_context():
+        d1 = Demo()
+        d1.pk = 1
+        db.session.add(d1)
+        db.session.rollback()
+    with app.app_context():
+        res = Demo.query.all()
+        assert len(res) == 0
+        db.session.rollback()
+
+    # Test nested session rollback
+    with app.app_context():
+        with db.session.begin_nested():
+            d1 = Demo()
+            d1.pk = 1
+            db.session.add(d1)
+        db.session.rollback()
+    with app.app_context():
+        res = Demo.query.all()
+        assert len(res) == 0
+        db.session.rollback()
+
+    # Test commit
+    with app.app_context():
+        d1 = Demo()
+        d1.pk = 1
+        db.session.add(d1)
+        db.session.commit()
+    with app.app_context():
+        res = Demo.query.all()
+        assert len(res) == 1
+        assert res[0].pk == 1
+        db.session.commit()
+
+    with app.app_context():
+        db.drop_all()
+
+
 @patch('pkg_resources.iter_entry_points', _mock_entry_points)
 def test_entry_points(db, app):
     """Test entrypoints loading."""
