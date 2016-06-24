@@ -28,9 +28,10 @@ First make sure you have Flask application with Click support (meaning
 Flask 1.0+ or alternatively use the Flask-CLI extension):
 
     >>> from flask import Flask
-    >>> from flask_cli import FlaskCLI
     >>> app = Flask('myapp')
-    >>> cli = FlaskCLI(app)
+    >>> if not hasattr(app, 'cli'):
+    ...     from flask_cli import FlaskCLI
+    ...     cli = FlaskCLI(app)
 
 Next, initialize your extension:
 

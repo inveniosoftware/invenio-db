@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -31,7 +31,11 @@ import os
 
 import pytest
 from flask import Flask
-from flask_cli import FlaskCLI, ScriptInfo
+
+try:
+    from flask.cli import ScriptInfo
+except ImportError:
+    from flask_cli import ScriptInfo
 
 
 @pytest.fixture()
@@ -52,7 +56,9 @@ def app():
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
                                                'sqlite:///test.db')
     )
-    FlaskCLI(app)
+    if not hasattr(app, 'cli'):
+        from flask_cli import FlaskCLI
+        FlaskCLI(app)
     return app
 
 

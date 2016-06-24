@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -31,10 +31,14 @@ import sys
 import click
 from click import _termui_impl
 from flask import current_app
-from flask_cli import with_appcontext
 from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
 from werkzeug.local import LocalProxy
+
+try:
+    from flask.cli import with_appcontext
+except ImportError:  # pragma: no cover
+    from flask_cli import with_appcontext
 
 _db = LocalProxy(lambda: current_app.extensions['sqlalchemy'].db)
 

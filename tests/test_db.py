@@ -29,7 +29,7 @@ from __future__ import absolute_import, print_function
 import pytest
 import sqlalchemy as sa
 from click.testing import CliRunner
-from flask_cli import ScriptInfo
+from conftest import ScriptInfo
 from mock import patch
 from pkg_resources import EntryPoint
 from sqlalchemy.exc import IntegrityError
