@@ -88,7 +88,7 @@ models automatically:
 
 from __future__ import absolute_import, print_function
 
-from .core import InvenioDB
+from .ext import InvenioDB
 from .shared import db
 from .version import __version__
 

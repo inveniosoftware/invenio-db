@@ -25,7 +25,7 @@
 API Docs
 ========
 
-.. automodule:: invenio_db.core
+.. automodule:: invenio_db.ext
    :members:
    :undoc-members:
 
