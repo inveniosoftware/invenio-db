@@ -216,3 +216,26 @@ def test_entry_points(db, app):
 
         result = runner.invoke(db_cmd, ['init'], obj=script_info)
         assert result.exit_code == 0
+
+
+def test_local_proxy(app, db):
+    """Test local proxy filter."""
+    from werkzeug.local import LocalProxy
+
+    InvenioDB(app, db=db)
+
+    with app.app_context():
+        query = db.select([
+            db.literal('hello') != db.bindparam('a'),
+            db.literal(0) <= db.bindparam('x'),
+            db.literal('2') == db.bindparam('y'),
+            db.literal(None).is_(db.bindparam('z')),
+        ])
+        result = db.engine.execute(
+            query,
+            a=LocalProxy(lambda: 'world'),
+            x=LocalProxy(lambda: 1),
+            y=LocalProxy(lambda: '2'),
+            z=LocalProxy(lambda: None),
+        ).fetchone()
+        assert result == (True, True, True, True)

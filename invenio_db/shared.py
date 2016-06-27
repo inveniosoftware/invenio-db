@@ -27,6 +27,7 @@
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from werkzeug.local import LocalProxy
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
@@ -49,6 +50,36 @@ class SQLAlchemy(FlaskSQLAlchemy):
                 event.listen(Engine, "connect", do_sqlite_connect)
             if not event.contains(Engine, "begin", do_sqlite_begin):
                 event.listen(Engine, "begin", do_sqlite_begin)
+
+            from sqlite3 import register_adapter
+
+            def adapt_proxy(proxy):
+                """Get current object and try to adapt it again."""
+                return proxy._get_current_object()
+
+            register_adapter(LocalProxy, adapt_proxy)
+
+        elif info.drivername == 'postgresql+psycopg2':  # pragma: no cover
+            from psycopg2.extensions import adapt, register_adapter
+
+            def adapt_proxy(proxy):
+                """Get current object and try to adapt it again."""
+                return adapt(proxy._get_current_object())
+
+            register_adapter(LocalProxy, adapt_proxy)
+
+        elif info.drivername == 'mysql+pymysql':  # pragma: no cover
+            from pymysql import converters
+
+            def escape_local_proxy(val, mapping):
+                """Get current object and try to adapt it again."""
+                return converters.escape_item(
+                    val._get_current_object(),
+                    self.engine.dialect.encoding,
+                    mapping=mapping,
+                )
+
+            converters.encoders[LocalProxy] = escape_local_proxy
 
 
 def do_sqlite_connect(dbapi_connection, connection_record):
