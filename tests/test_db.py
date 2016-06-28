@@ -248,3 +248,49 @@ def test_local_proxy(app, db):
             z=LocalProxy(lambda: None),
         ).fetchone()
         assert result == (True, True, True, True)
+
+
+@pytest.mark.skipif(not hasattr(sa, 'JSON'),
+                    reason='Requires SQLAlchemy>=1.1.0b1')
+def test_json(db, app):
+    """Test extension initialization."""
+    from sqlalchemy.dialects import mysql, postgresql
+
+    InvenioDB(app, db=db)
+
+    class TestJSON(db.Model):
+        __tablename__ = 'test_json'
+
+        pk = sa.Column(sa.Integer, primary_key=True)
+        js = sa.Column(sa.JSON().with_variant(
+            postgresql.JSONB(), 'postgresql'
+        ).with_variant(
+            mysql.JSON(), 'mysql'
+        ))
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+    with app.app_context():
+        db.session.add(TestJSON(pk=1, js={'foo': {'bar': 1}}))
+        db.session.add(TestJSON(pk=2, js={'baz': 2}))
+        db.session.commit()
+
+        result = TestJSON.query.get(1)
+        assert 1 == result.js['foo']['bar']
+
+        if hasattr(TestJSON.js['foo'], 'astext'):
+            result = TestJSON.query.filter(
+                TestJSON.js[('foo', 'bar')].astext.cast(Integer) == 1
+            ).first()
+            assert 1 == result.pk
+
+        if hasattr(TestJSON.js, 'has_key'):
+            result = TestJSON.query.filter(
+                TestJSON.js.has_key('baz')
+            ).first()
+            assert 2 == result.pk
+
+    with app.app_context():
+        db.drop_all()
