@@ -27,12 +27,9 @@ API Docs
 
 .. automodule:: invenio_db.ext
    :members:
-   :undoc-members:
 
 .. automodule:: invenio_db.shared
    :members:
-   :undoc-members:
 
 .. automodule:: invenio_db.cli
    :members:
-   :undoc-members:
