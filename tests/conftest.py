@@ -31,11 +31,7 @@ import os
 
 import pytest
 from flask import Flask
-
-try:
-    from flask.cli import ScriptInfo
-except ImportError:
-    from flask_cli import ScriptInfo
+from flask.cli import ScriptInfo
 
 
 @pytest.fixture()
@@ -56,9 +52,6 @@ def app():
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
                                                'sqlite:///test.db')
     )
-    if not hasattr(app, 'cli'):
-        from flask_cli import FlaskCLI
-        FlaskCLI(app)
     return app
 
 

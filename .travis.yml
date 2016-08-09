@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# This file is part of Invenio-DB
-# Copyright (C) 2015 CERN
+# This file is part of Invenio.
+# Copyright (C) 2015, 2016 CERN
 #
 # Invenio is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -85,3 +85,4 @@ deploy:
   on:
     tags: true
     python: "2.7"
+    condition: $REQUIREMENTS = release

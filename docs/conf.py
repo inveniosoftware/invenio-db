@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ from __future__ import print_function
 import os
 
 import sphinx.environment
-from docutils.utils import get_source_line
+
 
 # -- General configuration ------------------------------------------------
 
@@ -65,7 +65,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'Invenio-DB'
 copyright = u'2015, CERN'
-author = u'Invenio Collaboration'
+author = u'CERN'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -189,7 +189,15 @@ html_theme_options = {
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -259,7 +267,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'invenio-db.tex', u'invenio-db Documentation',
-   u'Invenio Collaboration', 'manual'),
+   u'CERN', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -322,3 +330,6 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# Autodoc configuraton.
+autoclass_content = 'both'

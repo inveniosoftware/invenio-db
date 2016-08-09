@@ -70,7 +70,7 @@ setup_requires = [
 ]
 
 install_requires = [
-    'Flask-CLI>=0.2.1',
+    'Flask>=0.11',
     'Flask-SQLAlchemy>=2.0',
     'SQLAlchemy>=1.0',
     'SQLAlchemy-Utils>=0.31.0',
@@ -125,6 +125,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
     ],
 )

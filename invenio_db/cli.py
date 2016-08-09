@@ -31,14 +31,10 @@ import sys
 import click
 from click import _termui_impl
 from flask import current_app
+from flask.cli import with_appcontext
 from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
 from werkzeug.local import LocalProxy
-
-try:
-    from flask.cli import with_appcontext
-except ImportError:  # pragma: no cover
-    from flask_cli import with_appcontext
 
 _db = LocalProxy(lambda: current_app.extensions['sqlalchemy'].db)
 

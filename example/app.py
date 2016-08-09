@@ -34,9 +34,4 @@ app = Flask('demo')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
 )
-
-if not hasattr(app, 'cli'):
-    from flask_cli import FlaskCLI
-    FlaskCLI(app)
-
 InvenioDB(app)

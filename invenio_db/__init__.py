@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -25,19 +25,15 @@
 """Database management for Invenio.
 
 First make sure you have Flask application with Click support (meaning
-Flask 1.0+ or alternatively use the Flask-CLI extension):
+Flask 0.11+):
 
     >>> from flask import Flask
     >>> app = Flask('myapp')
-    >>> if not hasattr(app, 'cli'):
-    ...     from flask_cli import FlaskCLI
-    ...     cli = FlaskCLI(app)
 
 Next, initialize your extension:
 
     >>> from invenio_db import InvenioDB
     >>> db = InvenioDB(app)
-
 
 Command-line interface
 ~~~~~~~~~~~~~~~~~~~~~~
