@@ -86,7 +86,7 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     """Ensure SQLite checks foreign key constraints.
 
     For further details see "Foreign key support" sections on
-    http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html
+    https://docs.sqlalchemy.org/en/latest/dialects/sqlite.html
     """
     # Enable foreign key constraint checking
     cursor = dbapi_connection.cursor()
@@ -98,7 +98,7 @@ def do_sqlite_begin(dbapi_connection):
     """Ensure SQLite transaction are started properly.
 
     For further details see "Foreign key support" sections on
-    http://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
+    https://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
     """
     # emit our own BEGIN
     dbapi_connection.execute("BEGIN")

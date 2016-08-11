@@ -1,8 +1,8 @@
-======================
- Invenio-DB v1.0.0a10
-======================
+=====================
+ Invenio-DB v1.0.0b1
+=====================
 
-Invenio-DB v1.0.0a10 was released on July 4, 2016.
+Invenio-DB v1.0.0b1 was released on August 11, 2016.
 
 About
 -----
@@ -20,18 +20,18 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-db==1.0.0a10
+   $ pip install invenio-db==1.0.0b1
 
 Documentation
 -------------
 
-   http://pythonhosted.org/invenio-db/
+   https://pythonhosted.org/invenio-db/
 
 Happy hacking and thanks for flying Invenio-DB.
 
 | Invenio Development Team
 |   Email: info@inveniosoftware.org
 |   IRC: #invenio on irc.freenode.net
-|   Twitter: http://twitter.com/inveniosoftware
+|   Twitter: https://twitter.com/inveniosoftware
 |   GitHub: https://github.com/inveniosoftware/invenio-db
 |   URL: http://inveniosoftware.org

@@ -138,8 +138,8 @@ html_theme_options = {
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'invenio-db@GitHub': 'http://github.com/inveniosoftware/invenio-db',
-        'invenio-db@PyPI': 'http://pypi.python.org/pypi/invenio-db/',
+        'invenio-db@GitHub': 'https://github.com/inveniosoftware/invenio-db',
+        'invenio-db@PyPI': 'https://pypi.python.org/pypi/invenio-db/',
     }
 }
 
