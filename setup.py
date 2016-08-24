@@ -70,7 +70,7 @@ setup_requires = [
 ]
 
 install_requires = [
-    'Flask>=0.11',
+    'Flask>=0.11.1',
     'Flask-SQLAlchemy>=2.0',
     'SQLAlchemy>=1.0',
     'SQLAlchemy-Utils>=0.31.0',
