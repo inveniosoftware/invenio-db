@@ -22,33 +22,35 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Simple example application for Invenio-DB package.
-
-Setup the application:
-
-.. code-block:: console
-
-   $ pip install -e .[all]
-   $ cd examples
-   $ export FLASK_APP=app.py
-   $ flask db init
-   $ flask db create
-
-Teardown the application:
-
-.. code-block:: console
-
-   $ flask db drop --yes-i-know
-"""
+"""Test example app."""
 
 import os
+import signal
+import subprocess
+import time
 
-from flask import Flask
+import pytest
 
-from invenio_db import InvenioDB
 
-app = Flask('demo')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
-)
-InvenioDB(app)
+@pytest.yield_fixture
+def example_app():
+    """Example app fixture."""
+    current_dir = os.getcwd()
+    # go to example directory
+    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    exampleappdir = os.path.join(project_dir, 'examples')
+    os.chdir(exampleappdir)
+    # return current dir
+    yield exampleappdir
+    # return to the original directory
+    os.chdir(current_dir)
+
+
+def test_example_app(example_app):
+    """Test example app."""
+    # Testing database creation
+    for cmd in ['FLASK_APP=app.py flask db init',
+                'FLASK_APP=app.py flask db create',
+                'FLASK_APP=app.py flask db drop --yes-i-know']:
+        exit_status = subprocess.call(cmd, shell=True)
+        assert exit_status == 0
