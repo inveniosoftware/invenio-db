@@ -74,6 +74,10 @@ class InvenioDB(object):
 
         # All models should be loaded by now.
         sa.orm.configure_mappers()
+        # Ensure that versioning classes have been built.
+        if app.config['DB_VERSIONING'] and \
+                self.versioning_manager.pending_classes:
+            self.versioning_manager.builder.configure_versioned_classes()
 
     def init_versioning(self, app, database, versioning_manager=None):
         """Initialize the versioning support using SQLAlchemy-Continuum."""
