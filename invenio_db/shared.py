@@ -79,6 +79,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
                     mapping=mapping,
                 )
 
+            converters.conversions[LocalProxy] = escape_local_proxy
             converters.encoders[LocalProxy] = escape_local_proxy
 
 
