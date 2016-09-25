@@ -25,7 +25,7 @@ Installation
 Documentation
 -------------
 
-   https://pythonhosted.org/invenio-db/
+   https://invenio-db.readthedocs.io/
 
 Happy hacking and thanks for flying Invenio-DB.
 
