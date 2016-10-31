@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -22,20 +22,22 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-include *.rst
-include *.sh
-include *.txt
-include .dockerignore
-include .editorconfig
-include .lgtm MAINTAINERS
-include LICENSE
-include docs/requirements.txt
-include pytest.ini
-recursive-include docs *.bat
-recursive-include docs *.py
-recursive-include docs *.rst
-recursive-include docs Makefile
-recursive-include examples *.py
-recursive-include invenio_db *.mako
-recursive-include invenio_db *.py
-recursive-include tests *.py
+"""Create database migrations."""
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision = '96e796392533'
+down_revision = None
+branch_labels = (u'default', )
+depends_on = None
+
+
+def upgrade():
+    """Update database."""
+
+
+def downgrade():
+    """Downgrade database."""

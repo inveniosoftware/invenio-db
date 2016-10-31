@@ -63,7 +63,7 @@ def _mock_entry_points(name):
     }
     names = data.keys() if name is None else [name]
     for key in names:
-        for entry_point in data[key]:
+        for entry_point in data.get(key, []):
             yield entry_point
 
 
@@ -107,6 +107,15 @@ def test_init(db, app):
         db.session.commit()
 
         db.drop_all()
+
+
+def test_alembic(db, app):
+    """Test alembic recipes."""
+    ext = InvenioDB(app, entry_point_group=False, db=db)
+
+    with app.app_context():
+        ext.alembic.upgrade()
+        ext.alembic.downgrade(target='96e796392533')
 
 
 def test_transaction(db, app):

@@ -30,6 +30,7 @@ import os
 
 import pkg_resources
 import sqlalchemy as sa
+from flask_alembic import Alembic
 from sqlalchemy_utils.functions import get_class_by_table
 
 from .cli import db as db_cmd
@@ -41,12 +42,28 @@ class InvenioDB(object):
 
     def __init__(self, app=None, **kwargs):
         """Extension initialization."""
+        self.alembic = Alembic(run_mkdir=False, command_name='alembic')
         if app:
             self.init_app(app, **kwargs)
 
     def init_app(self, app, **kwargs):
         """Initialize application object."""
         self.init_db(app, **kwargs)
+
+        app.config.setdefault('ALEMBIC', {
+            'script_location': pkg_resources.resource_filename(
+                'invenio_db', 'alembic'
+            ),
+            'version_locations': [
+                (base_entry.name, pkg_resources.resource_filename(
+                    base_entry.module_name, os.path.join(*base_entry.attrs)
+                )) for base_entry in pkg_resources.iter_entry_points(
+                    'invenio_db.alembic'
+                )
+            ],
+        })
+
+        self.alembic.init_app(app)
         app.extensions['invenio-db'] = self
         app.cli.add_command(db_cmd)
 

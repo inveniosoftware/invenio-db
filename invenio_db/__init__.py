@@ -45,6 +45,11 @@ following commands:
  * ``init`` - Initialize database.
  * ``destroy`` - Destroy database.
 
+and `alembic` command group for managing upgrade recipes. For more information
+about `alembic` commands visit `Flask-Alembic documentation <Flask-Alembic_>`_.
+
+.. _Flask-Alembic: https://flask-alembic.readthedocs.io/
+
 Models
 ~~~~~~
 
