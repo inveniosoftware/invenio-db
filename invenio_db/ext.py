@@ -92,9 +92,14 @@ class InvenioDB(object):
         # All models should be loaded by now.
         sa.orm.configure_mappers()
         # Ensure that versioning classes have been built.
-        if app.config['DB_VERSIONING'] and \
-                self.versioning_manager.pending_classes:
-            self.versioning_manager.builder.configure_versioned_classes()
+        if app.config['DB_VERSIONING']:
+            manager = self.versioning_manager
+            if manager.pending_classes:
+                manager.builder.configure_versioned_classes()
+            elif 'transaction' not in database.metadata.tables:
+                manager.declarative_base = database.Model
+                manager.create_transaction_model()
+                manager.plugins.after_build_tx_class(manager)
 
     def init_versioning(self, app, database, versioning_manager=None):
         """Initialize the versioning support using SQLAlchemy-Continuum."""
@@ -119,6 +124,7 @@ class InvenioDB(object):
         # Now we can import SQLAlchemy-Continuum.
         from sqlalchemy_continuum import make_versioned
         from sqlalchemy_continuum import versioning_manager as default_vm
+        from sqlalchemy_continuum.plugins import FlaskPlugin
 
         # Try to guess user model class:
         if 'DB_VERSIONING_USER_MODEL' not in app.config:  # pragma: no cover
@@ -131,9 +137,15 @@ class InvenioDB(object):
         else:
             user_cls = app.config.get('DB_VERSIONING_USER_MODEL')
 
+        plugins = [FlaskPlugin()] if user_cls else []
+
         # Call make_versioned() before your models are defined.
         self.versioning_manager = versioning_manager or default_vm
-        make_versioned(user_cls=user_cls, manager=self.versioning_manager)
+        make_versioned(
+            user_cls=user_cls,
+            manager=self.versioning_manager,
+            plugins=plugins,
+        )
 
         # Register models that have been loaded beforehand.
         builder = self.versioning_manager.builder

@@ -131,3 +131,19 @@ def test_versioning(db, app):
 
     from sqlalchemy_continuum import remove_versioning
     remove_versioning(manager=idb.versioning_manager)
+
+
+def test_versioning_without_versioned_tables(db, app):
+    """Test SQLAlchemy-Continuum without versioned tables."""
+    from sqlalchemy_continuum import VersioningManager
+
+    app.config['DB_VERSIONING'] = True
+
+    idb = InvenioDB(app, db=db, entry_point_group=None,
+                    versioning_manager=VersioningManager())
+
+    with app.app_context():
+        assert 'transaction' in db.metadata.tables
+
+    from sqlalchemy_continuum import remove_versioning
+    remove_versioning(manager=idb.versioning_manager)
