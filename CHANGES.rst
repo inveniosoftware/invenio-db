@@ -24,8 +24,9 @@
 Changes
 =======
 
-Version 1.0.0b2 (released 2016-09-02)
+Version 1.0.0b3 (released 2016-11-07)
 -------------------------------------
 
 - Initial public release.
 - Versioning support using SQLAlchemy-Continuum.
+- Upgrades using Alembic.

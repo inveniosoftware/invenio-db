@@ -1,8 +1,8 @@
 =====================
- Invenio-DB v1.0.0b2
+ Invenio-DB v1.0.0b3
 =====================
 
-Invenio-DB v1.0.0b2 was released on September 2, 2016.
+Invenio-DB v1.0.0b3 was released on November 7, 2016.
 
 About
 -----
@@ -16,11 +16,12 @@ What's new
 
 - Initial public release.
 - Versioning support using SQLAlchemy-Continuum.
+- Upgrades using Alembic.
 
 Installation
 ------------
 
-   $ pip install invenio-db==1.0.0b2
+   $ pip install invenio-db==1.0.0b3
 
 Documentation
 -------------
