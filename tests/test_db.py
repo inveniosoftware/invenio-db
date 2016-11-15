@@ -255,6 +255,7 @@ def test_local_proxy(app, db):
 def test_json(db, app):
     """Test extension initialization."""
     from sqlalchemy.dialects import mysql, postgresql
+    from sqlalchemy_utils.types import JSONType
 
     InvenioDB(app, db=db)
 
@@ -266,6 +267,8 @@ def test_json(db, app):
             postgresql.JSONB(), 'postgresql'
         ).with_variant(
             mysql.JSON(), 'mysql'
+        ).with_variant(
+            JSONType(), 'sqlite'
         ))
 
     with app.app_context():
