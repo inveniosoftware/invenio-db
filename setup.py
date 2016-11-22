@@ -25,7 +25,6 @@
 """Database management for Invenio."""
 
 import os
-import sys
 
 from setuptools import find_packages, setup
 
