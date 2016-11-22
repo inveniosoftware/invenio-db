@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -21,9 +21,5 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
-#
-# TODO: Add development versions of some important dependencies here to get a
-#       warning when there are breaking upstream changes, e.g.:
-#
-#     -e git+git://github.com/mitsuhiko/werkzeug.git#egg=Werkzeug
-#     -e git+git://github.com/mitsuhiko/jinja2.git#egg=Jinja2
+
+-e git+https://github.com/zzzeek/sqlalchemy.git#egg=sqlalchemy

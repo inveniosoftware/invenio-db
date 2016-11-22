@@ -24,7 +24,7 @@
 notifications:
   email: false
 
-sudo: false
+sudo: true
 
 language: python
 
@@ -34,6 +34,10 @@ cache:
 services:
   - mysql
   - postgresql
+
+addons:
+  postgresql: "9.4"
+  mysql: "5.7"
 
 env:
   - EXTRAS=sqlite REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
@@ -59,6 +63,7 @@ matrix:
       env: EXTRAS=sqlite REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
 
 before_install:
+  - bash .travis.install-mysql-5.7.sh
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls requirements-builder"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=min setup.py > .travis-lowest-requirements.txt"
