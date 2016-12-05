@@ -58,10 +58,10 @@ class SQLAlchemy(FlaskSQLAlchemy):
                 # also stops it from emitting COMMIT before any DDL.
                 connect_args['isolation_level'] = None
 
-            if not event.contains(Engine, "connect", do_sqlite_connect):
-                event.listen(Engine, "connect", do_sqlite_connect)
-            if not event.contains(Engine, "begin", do_sqlite_begin):
-                event.listen(Engine, "begin", do_sqlite_begin)
+            if not event.contains(Engine, 'connect', do_sqlite_connect):
+                event.listen(Engine, 'connect', do_sqlite_connect)
+            if not event.contains(Engine, 'begin', do_sqlite_begin):
+                event.listen(Engine, 'begin', do_sqlite_begin)
 
             from sqlite3 import register_adapter
 
@@ -103,7 +103,7 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     """
     # Enable foreign key constraint checking
     cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute('PRAGMA foreign_keys=ON')
     cursor.close()
 
 
@@ -114,7 +114,7 @@ def do_sqlite_begin(dbapi_connection):
     https://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
     """
     # emit our own BEGIN
-    dbapi_connection.execute("BEGIN")
+    dbapi_connection.execute('BEGIN')
 
 
 db = SQLAlchemy(metadata=metadata)
