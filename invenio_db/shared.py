@@ -25,9 +25,21 @@
 """Shared database object for Invenio."""
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
-from sqlalchemy import event
+from sqlalchemy import MetaData, event, util
 from sqlalchemy.engine import Engine
 from werkzeug.local import LocalProxy
+
+NAMING_CONVENTION = util.immutabledict({
+    'ix': 'ix_%(column_0_label)s',
+    'uq': 'uq_%(table_name)s_%(column_0_name)s',
+    'ck': 'ck_%(table_name)s_%(constraint_name)s',
+    'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+    'pk': 'pk_%(table_name)s',
+})
+"""Configuration for constraint naming conventions."""
+
+metadata = MetaData(naming_convention=NAMING_CONVENTION)
+"""Default database metadata object holding associated schema constructs."""
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
@@ -105,7 +117,7 @@ def do_sqlite_begin(dbapi_connection):
     dbapi_connection.execute("BEGIN")
 
 
-db = SQLAlchemy()
+db = SQLAlchemy(metadata=metadata)
 """Shared database instance using Flask-SQLAlchemy extension.
 
 This object is initialized during initialization of ``InvenioDB``
