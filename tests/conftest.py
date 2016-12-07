@@ -38,7 +38,9 @@ from flask.cli import ScriptInfo
 def db():
     import invenio_db
     from invenio_db import shared
-    db = invenio_db.db = shared.db = shared.SQLAlchemy()
+    db = invenio_db.db = shared.db = shared.SQLAlchemy(
+        metadata=shared.MetaData(naming_convention=shared.NAMING_CONVENTION)
+    )
     return db
 
 

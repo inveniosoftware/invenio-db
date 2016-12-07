@@ -30,12 +30,14 @@ import pytest
 import sqlalchemy as sa
 from click.testing import CliRunner
 from conftest import ScriptInfo
+from flask import Flask
 from mock import patch
 from pkg_resources import EntryPoint
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy_continuum import VersioningManager
 from werkzeug.utils import import_string
 
-from invenio_db import InvenioDB
+from invenio_db import InvenioDB, shared
 from invenio_db.cli import db as db_cmd
 
 
@@ -116,6 +118,106 @@ def test_alembic(db, app):
     with app.app_context():
         ext.alembic.upgrade()
         ext.alembic.downgrade(target='96e796392533')
+
+
+def test_naming_convention(db, app):
+    """Test naming convention."""
+    from sqlalchemy_continuum import remove_versioning
+
+    ext = InvenioDB(app, entry_point_group=False, db=db)
+    cfg = dict(
+        DB_VERSIONING=True,
+        DB_VERSIONING_USER_MODEL=None,
+        SQLALCHEMY_DATABASE_URI=app.config[
+            'SQLALCHEMY_DATABASE_URI'],
+    )
+
+    with app.app_context():
+        if db.engine.name == 'sqlite':
+            raise pytest.skip('Upgrades are not supported on SQLite.')
+
+    def model_factory(base):
+        """Create test models."""
+        class Master(base):
+            __tablename__ = 'master'
+            pk = sa.Column(sa.Integer, primary_key=True)
+            name = sa.Column(sa.String(100), unique=True)
+            city = sa.Column(sa.String(100), index=True)
+
+        class Slave(base):
+            __tablename__ = 'slave'
+            pk = sa.Column(sa.Integer, primary_key=True)
+            fk = sa.Column(sa.Integer, sa.ForeignKey(Master.pk))
+            code = sa.Column(sa.Integer, index=True, unique=True)
+            source = sa.Column(sa.String(100))
+
+            __table_args__ = (
+                sa.Index(None, source),
+                # do not add anything after
+                getattr(base, '__table_args__', {})
+            )
+
+        return Master, Slave
+
+    source_db = shared.SQLAlchemy(
+        metadata=shared.MetaData(naming_convention={
+            'ix': 'source_ix_%(table_name)s_%(column_0_label)s',
+            'uq': 'source_uq_%(table_name)s_%(column_0_name)s',
+            'ck': 'source_ck_%(table_name)s_%(constraint_name)s',
+            'fk': 'source_fk_%(table_name)s_%(column_0_name)s_'
+                  '%(referred_table_name)s',
+            'pk': 'source_pk_%(table_name)s',
+        }),
+    )
+    source_app = Flask('source_app')
+    source_app.config.update(**cfg)
+
+    source_models = model_factory(source_db.Model)
+    source_ext = InvenioDB(
+        source_app, entry_point_group=False, db=source_db,
+        versioning_manager=VersioningManager(),
+    )
+
+    with source_app.app_context():
+        source_db.metadata.bind = source_db.engine
+        source_db.create_all()
+        source_ext.alembic.stamp('dbdbc1b19cf2')
+        assert not source_ext.alembic.compare_metadata()
+        source_constraints = set([
+            cns for model in source_models
+            for cns in list(model.__table__.constraints) + list(
+                model.__table__.indexes)
+        ])
+
+    remove_versioning(manager=source_ext.versioning_manager)
+
+    target_db = shared.SQLAlchemy(
+        metadata=shared.MetaData(naming_convention=shared.NAMING_CONVENTION)
+    )
+    target_app = Flask('target_app')
+    target_app.config.update(**cfg)
+
+    target_models = model_factory(target_db.Model)
+    target_ext = InvenioDB(
+        target_app, entry_point_group=False, db=target_db,
+        versioning_manager=VersioningManager(),
+    )
+
+    with target_app.app_context():
+        target_db.metadata.bind = target_db.engine
+        assert target_ext.alembic.compare_metadata()
+        target_ext.alembic.upgrade('35c1075e6360')
+        assert not target_ext.alembic.compare_metadata()
+        target_db.drop_all()
+        target_constraints = set([
+            cns.name for model in source_models
+            for cns in list(model.__table__.constraints) + list(
+                model.__table__.indexes)
+        ])
+
+    remove_versioning(manager=target_ext.versioning_manager)
+
+    assert source_constraints ^ target_constraints
 
 
 def test_transaction(db, app):
