@@ -116,6 +116,9 @@ def test_alembic(db, app):
     ext = InvenioDB(app, entry_point_group=False, db=db)
 
     with app.app_context():
+        if db.engine.name == 'sqlite':
+            raise pytest.skip('Upgrades are not supported on SQLite.')
+
         ext.alembic.upgrade()
         ext.alembic.downgrade(target='96e796392533')
 
