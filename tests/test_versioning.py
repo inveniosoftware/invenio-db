@@ -26,7 +26,8 @@
 
 import pytest
 from mock import patch
-from sqlalchemy_continuum import make_versioned
+from sqlalchemy_continuum import VersioningManager, make_versioned, \
+    remove_versioning
 from test_db import _mock_entry_points
 
 from invenio_db import InvenioDB
@@ -54,7 +55,8 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
 
         pk = db.Column(db.Integer, primary_key=True)
 
-    idb = InvenioDB(app, entry_point_group=None, db=db)
+    idb = InvenioDB(app, entry_point_group=None, db=db,
+                    versioning_manager=VersioningManager())
 
     with app.app_context():
         db.drop_all()
@@ -71,15 +73,12 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
         db.drop_all()
 
     if versioning:
-        from sqlalchemy_continuum import remove_versioning
         remove_versioning(manager=idb.versioning_manager)
 
 
 @patch('pkg_resources.iter_entry_points', _mock_entry_points)
 def test_versioning(db, app):
     """Test SQLAlchemy-Continuum enabled versioning."""
-    from sqlalchemy_continuum import VersioningManager
-
     app.config['DB_VERSIONING'] = True
 
     idb = InvenioDB(app, entry_point_group='invenio_db.models_b', db=db,
@@ -129,14 +128,11 @@ def test_versioning(db, app):
     with app.app_context():
         db.drop_all()
 
-    from sqlalchemy_continuum import remove_versioning
     remove_versioning(manager=idb.versioning_manager)
 
 
 def test_versioning_without_versioned_tables(db, app):
     """Test SQLAlchemy-Continuum without versioned tables."""
-    from sqlalchemy_continuum import VersioningManager
-
     app.config['DB_VERSIONING'] = True
 
     idb = InvenioDB(app, db=db, entry_point_group=None,
@@ -145,5 +141,4 @@ def test_versioning_without_versioned_tables(db, app):
     with app.app_context():
         assert 'transaction' in db.metadata.tables
 
-    from sqlalchemy_continuum import remove_versioning
     remove_versioning(manager=idb.versioning_manager)
