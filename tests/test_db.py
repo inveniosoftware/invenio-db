@@ -146,6 +146,7 @@ def test_naming_convention(db, app):
             pk = sa.Column(sa.Integer, primary_key=True)
             name = sa.Column(sa.String(100), unique=True)
             city = sa.Column(sa.String(100), index=True)
+            active = sa.Column(sa.Boolean(name='active'), server_default='1')
 
         class Slave(base):
             __tablename__ = 'slave'

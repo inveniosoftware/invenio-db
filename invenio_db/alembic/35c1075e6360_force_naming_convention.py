@@ -25,7 +25,7 @@
 """Force naming convention."""
 
 import sqlalchemy as sa
-from alembic import op
+from alembic import op, util
 from sqlalchemy.engine.reflection import Inspector
 
 # revision identifiers, used by Alembic.
@@ -93,6 +93,9 @@ def upgrade():
                         batch_op.drop_constraint(uq['name'], type_='unique')
                         batch_op.create_unique_constraint(
                             op.f(c.name), uq['column_names'])
+                elif isinstance(c, sa.schema.CheckConstraint):
+                    util.warn('Update {0.table.name} CHECK {0.name} '
+                              'manually'.format(c))
                 elif isinstance(c, sa.schema.Index):
                     key = tuple(c.columns.keys())
                     ix = ixs.get(key)
