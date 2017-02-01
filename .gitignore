@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# Idea software family
+.idea/
+
 # C extensions
 *.so
 
@@ -58,3 +61,6 @@ target/
 
 # Tests
 tests/test.db
+
+# Vim swapfiles
+.*.sw?

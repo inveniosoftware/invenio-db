@@ -46,7 +46,7 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.4.2',
+        'Sphinx>=1.5.1',
     ],
     'mysql': [
         'pymysql>=0.6.7',
@@ -84,7 +84,6 @@ g = {}
 with open(os.path.join('invenio_db', 'version.py'), 'rt') as fp:
     exec(fp.read(), g)
     version = g['__version__']
-
 setup(
     name='invenio-db',
     version=version,
@@ -100,10 +99,10 @@ setup(
     include_package_data=True,
     platforms='any',
     entry_points={
-        'invenio_base.apps': [
+        'invenio_base.api_apps': [
             'invenio_db = invenio_db:InvenioDB',
         ],
-        'invenio_base.api_apps': [
+        'invenio_base.apps': [
             'invenio_db = invenio_db:InvenioDB',
         ],
     },

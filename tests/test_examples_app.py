@@ -25,9 +25,7 @@
 """Test example app."""
 
 import os
-import signal
 import subprocess
-import time
 
 import pytest
 
@@ -36,13 +34,16 @@ import pytest
 def example_app():
     """Example app fixture."""
     current_dir = os.getcwd()
-    # go to example directory
+
+    # Go to example directory
     project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     exampleappdir = os.path.join(project_dir, 'examples')
     os.chdir(exampleappdir)
-    # return current dir
+
+    # Return current dir
     yield exampleappdir
-    # return to the original directory
+
+    # Return to the original directory
     os.chdir(current_dir)
 
 
