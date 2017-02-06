@@ -142,16 +142,17 @@ def test_naming_convention(db, app):
     def model_factory(base):
         """Create test models."""
         class Master(base):
-            __tablename__ = 'master'
+            __tablename__ = 'master_plus_a_very_long_long_long_name_for_mysql'
             pk = sa.Column(sa.Integer, primary_key=True)
             name = sa.Column(sa.String(100), unique=True)
             city = sa.Column(sa.String(100), index=True)
             active = sa.Column(sa.Boolean(name='active'), server_default='1')
 
         class Slave(base):
-            __tablename__ = 'slave'
+            __tablename__ = 'slave_plus_a_very_long_long_long_name_for_mysql'
             pk = sa.Column(sa.Integer, primary_key=True)
-            fk = sa.Column(sa.Integer, sa.ForeignKey(Master.pk))
+            fk = sa.Column(sa.Integer, sa.ForeignKey(
+                Master.pk, name='fk_slave_fk_master_pk'))
             code = sa.Column(sa.Integer, index=True, unique=True)
             source = sa.Column(sa.String(100))
 
