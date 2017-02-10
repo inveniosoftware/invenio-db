@@ -45,8 +45,9 @@ following commands:
  * ``init`` - Initialize database.
  * ``destroy`` - Destroy database.
 
-and `alembic` command group for managing upgrade recipes. For more information
-about `alembic` commands visit `Flask-Alembic documentation <Flask-Alembic_>`_.
+and ``alembic`` command group for managing upgrade recipes. For more
+information about Alembic commands visit `Flask-Alembic documentation
+<Flask-Alembic_>`_.
 
 .. _Flask-Alembic: https://flask-alembic.readthedocs.io/
 
@@ -68,10 +69,12 @@ Database models are created by inheriting from the declarative base
 
 Setuptools integration
 ~~~~~~~~~~~~~~~~~~~~~~
-In order for the CLI commands to be aware of your models, you must either
-import your models in the application factory, or better simply specify the
-entry point ``invenio_db.models``. Invenio-DB then takes care of loading the
-models automatically:
+
+In order for the CLI commands to be aware of your models and upgrade recipies,
+you must either import your models in the application factory, or better simply
+specify the entry point item in ``invenio_db.models`` group. Invenio-DB then
+takes care of loading the models automatically. Alembic configuration of
+version locations is assembled from ``invenio_db.alembic`` entry point group.
 
 .. code-block:: python
 
@@ -79,6 +82,9 @@ models automatically:
    # ...
    setup(
        entry_points={
+           'invenio_db.alembic': [
+               'branch_name = mymodule:alembic',
+           ],
            'invenio_db.models': [
                'mymodule = mymodule.models',
            ],

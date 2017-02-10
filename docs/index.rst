@@ -34,6 +34,7 @@ Invenio-DB.
    :maxdepth: 2
 
    installation
+   configuration
    usage
    examplesapp
 
