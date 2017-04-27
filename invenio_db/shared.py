@@ -46,7 +46,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
     """Implement or overide extension methods."""
 
     def apply_driver_hacks(self, app, info, options):
-        """Called before engine creation."""
+        """Call before engine creation."""
         # Don't forget to apply hacks defined on parent object.
         super(SQLAlchemy, self).apply_driver_hacks(app, info, options)
 
