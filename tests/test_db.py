@@ -34,7 +34,8 @@ from flask import Flask
 from mock import patch
 from pkg_resources import EntryPoint
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy_continuum import VersioningManager
+from sqlalchemy_continuum import VersioningManager, remove_versioning
+from sqlalchemy_utils.functions import create_database, drop_database
 from werkzeug.utils import import_string
 
 from invenio_db import InvenioDB, shared
@@ -354,3 +355,48 @@ def test_local_proxy(app, db):
             z=LocalProxy(lambda: None),
         ).fetchone()
         assert result == (True, True, True, True)
+
+
+def test_db_create_alembic_upgrade(app, db):
+    """Test that 'db create/drop' and 'alembic create' are compatible.
+
+    It also checks that "alembic_version" table is processed properly
+    as it is normally created by alembic and not by sqlalchemy.
+    """
+    app.config['DB_VERSIONING'] = True
+    ext = InvenioDB(app, entry_point_group=None, db=db,
+                    versioning_manager=VersioningManager())
+    with app.app_context():
+        try:
+            if db.engine.name == 'sqlite':
+                raise pytest.skip('Upgrades are not supported on SQLite.')
+            db.drop_all()
+            runner = CliRunner()
+            script_info = ScriptInfo(create_app=lambda info: app)
+
+            # Check that 'db create' creates the same schema as
+            # 'alembic upgrade'.
+            result = runner.invoke(db_cmd, ['create', '-v'], obj=script_info)
+            assert result.exit_code == 0
+            assert db.engine.has_table('transaction')
+            assert ext.alembic.migration_context._has_version_table()
+            # Note that compare_metadata does not detect additional sequences
+            # and constraints.
+            assert not ext.alembic.compare_metadata()
+            ext.alembic.upgrade()
+            assert db.engine.has_table('transaction')
+
+            ext.alembic.downgrade(target='96e796392533')
+            assert db.engine.table_names() == ['alembic_version']
+
+            # Check that 'db drop' removes all tables, including
+            # 'alembic_version'.
+            ext.alembic.upgrade()
+            result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'],
+                                   obj=script_info)
+            assert result.exit_code == 0
+            assert len(db.engine.table_names()) == 0
+        finally:
+            drop_database(str(db.engine.url))
+            remove_versioning(manager=ext.versioning_manager)
+            create_database(str(db.engine.url))
