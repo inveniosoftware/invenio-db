@@ -42,8 +42,4 @@
 
 
 Database management for Invenio.
-
-*This is an experimental developer preview release.*
-
-* Free software: GPLv2 license
-* Documentation: https://invenio-db.readthedocs.io/
+Further documentation available on https://invenio-db.readthedocs.io/

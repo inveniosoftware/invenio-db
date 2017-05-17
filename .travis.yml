@@ -49,14 +49,8 @@ env:
 python:
   - "2.7"
   - "3.5"
-  - "pypy"
 
 matrix:
-  allow_failures:
-    - python: pypy
-  include:
-    - python: pypy
-      env: EXTRAS=sqlite REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   fast_finish: true
 
 before_install:
