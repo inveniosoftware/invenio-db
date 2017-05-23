@@ -32,14 +32,11 @@ import click
 from click import _termui_impl
 from flask import current_app
 from flask.cli import with_appcontext
-from sqlalchemy.exc import InternalError
-from sqlalchemy.schema import DropTable
-from sqlalchemy.sql.ddl import SchemaDropper
 from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
 from werkzeug.local import LocalProxy
 
-from .utils import create_alembic_version_table
+from .utils import create_alembic_version_table, drop_alembic_version_table
 
 _db = LocalProxy(lambda: current_app.extensions['sqlalchemy'].db)
 
@@ -86,19 +83,12 @@ def create(verbose):
 def drop(verbose):
     """Drop tables."""
     click.secho('Dropping all tables!', fg='red', bold=True)
-    schema_dropper = SchemaDropper(_db.engine.dialect, _db.engine.connect())
     with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
         for table in bar:
             if verbose:
                 click.echo(' Dropping table {0}'.format(table))
-            try:
                 table.drop(bind=_db.engine, checkfirst=True)
-            except InternalError:
-                schema_dropper.connection.execute(DropTable(table))
-    if _db.engine.dialect.has_table(_db.engine, 'alembic_version'):
-        alembic_version = _db.Table('alembic_version', _db.metadata,
-                                    autoload_with=_db.engine)
-        alembic_version.drop(bind=_db.engine)
+        drop_alembic_version_table()
     click.secho('Dropped all tables!', fg='green')
 
 

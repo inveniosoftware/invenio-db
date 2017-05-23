@@ -27,8 +27,11 @@
 
 from flask import current_app
 from sqlalchemy.engine import reflection
+from werkzeug.local import LocalProxy
 
 from .shared import db
+
+_db = LocalProxy(lambda: current_app.extensions['sqlalchemy'].db)
 
 
 def rebuild_encrypted_properties(old_key, model, properties):
@@ -78,3 +81,11 @@ def create_alembic_version_table():
         alembic.migration_context._ensure_version_table()
         for head in alembic.script_directory.revision_map._real_heads:
             alembic.migration_context.stamp(alembic.script_directory, head)
+
+
+def drop_alembic_version_table():
+    """Drop alembic_version table."""
+    if _db.engine.dialect.has_table(_db.engine, 'alembic_version'):
+        alembic_version = _db.Table('alembic_version', _db.metadata,
+                                    autoload_with=_db.engine)
+        alembic_version.drop(bind=_db.engine)

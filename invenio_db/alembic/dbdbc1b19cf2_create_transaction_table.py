@@ -25,6 +25,8 @@
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.schema import Sequence, CreateSequence, \
+    DropSequence
 
 # revision identifiers, used by Alembic.
 revision = 'dbdbc1b19cf2'
@@ -40,10 +42,14 @@ def upgrade():
         sa.Column('issued_at', sa.DateTime(), nullable=True),
         sa.Column('id', sa.BigInteger(), nullable=False),
         sa.Column('remote_addr', sa.String(length=50), nullable=True),
-        sa.PrimaryKeyConstraint('id')
     )
+    op.create_primary_key('pk_transaction', 'transaction', ['id'])
+    if op._proxy.migration_context.dialect.supports_sequences:
+        op.execute(CreateSequence(Sequence('transaction_id_seq')))
 
 
 def downgrade():
     """Downgrade database."""
     op.drop_table('transaction')
+    if op._proxy.migration_context.dialect.supports_sequences:
+        op.execute(DropSequence(Sequence('transaction_id_seq')))

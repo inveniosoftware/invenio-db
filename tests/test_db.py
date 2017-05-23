@@ -40,6 +40,7 @@ from werkzeug.utils import import_string
 
 from invenio_db import InvenioDB, shared
 from invenio_db.cli import db as db_cmd
+from invenio_db.utils import drop_alembic_version_table
 
 
 class MockEntryPoint(EntryPoint):
@@ -373,7 +374,6 @@ def test_db_create_alembic_upgrade(app, db):
             db.drop_all()
             runner = CliRunner()
             script_info = ScriptInfo(create_app=lambda info: app)
-
             # Check that 'db create' creates the same schema as
             # 'alembic upgrade'.
             result = runner.invoke(db_cmd, ['create', '-v'], obj=script_info)
@@ -396,6 +396,12 @@ def test_db_create_alembic_upgrade(app, db):
                                    obj=script_info)
             assert result.exit_code == 0
             assert len(db.engine.table_names()) == 0
+
+            ext.alembic.upgrade()
+            db.drop_all()
+            drop_alembic_version_table()
+            assert len(db.engine.table_names()) == 0
+
         finally:
             drop_database(str(db.engine.url))
             remove_versioning(manager=ext.versioning_manager)
