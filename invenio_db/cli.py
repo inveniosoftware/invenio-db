@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015, 2016, 2017 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -87,7 +87,7 @@ def drop(verbose):
         for table in bar:
             if verbose:
                 click.echo(' Dropping table {0}'.format(table))
-                table.drop(bind=_db.engine, checkfirst=True)
+            table.drop(bind=_db.engine, checkfirst=True)
         drop_alembic_version_table()
     click.secho('Dropped all tables!', fg='green')
 
