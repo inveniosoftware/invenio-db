@@ -21,3 +21,9 @@
 # In applying this license, CERN does not
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
+
+git+https://github.com/alembic/alembic.git#alembic
+git+https://github.com/kvesteri/sqlalchemy-continuum.git#sqlalchemy-continuum
+git+https://github.com/kvesteri/sqlalchemy-utils.git#sqlalchemy-utils
+git+https://github.com/mitsuhiko/flask-sqlalchemy.git#flask-sqlalchemy
+git+https://github.com/zzzeek/sqlalchemy.git#sqlalchemy
