@@ -24,6 +24,8 @@
 
 """Simple example application for Invenio-DB package.
 
+SPHINX-START
+
 Setup the application:
 
 .. code-block:: console
@@ -39,6 +41,8 @@ Teardown the application:
 .. code-block:: console
 
    $ flask db drop --yes-i-know
+
+SPHINX-END
 """
 
 import os
