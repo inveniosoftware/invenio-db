@@ -36,6 +36,7 @@ Invenio-DB.
    installation
    configuration
    usage
+   alembic
    examplesapp
 
 

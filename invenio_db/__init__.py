@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015, 2016, 2017 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -45,11 +45,22 @@ following commands:
  * ``init`` - Initialize database.
  * ``destroy`` - Destroy database.
 
-and ``alembic`` command group for managing upgrade recipes. For more
-information about Alembic commands visit `Flask-Alembic documentation
-<Flask-Alembic_>`_.
+and ``alembic`` command group for managing upgrade recipes:
 
-.. _Flask-Alembic: https://flask-alembic.readthedocs.io/
+ * ``branches`` - Show branch points.
+ * ``current`` - Show current revision.
+ * ``downgrade`` - Run downgrade migrations.
+ * ``heads`` - Show latest revisions.
+ * ``log`` - Show revision log.
+ * ``merge`` - Create merge revision.
+ * ``mkdir`` - Make migration directory.
+ * ``revision`` - Create new migration.
+ * ``show`` - Show the given revisions.
+ * ``stamp`` - Set current revision.
+ * ``upgrade`` - Run upgrade migrations.
+
+For more information about how to setup alembic revisions in your module,
+please read the section about :doc:`alembic </alembic>`.
 
 Models
 ~~~~~~
