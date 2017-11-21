@@ -89,3 +89,19 @@ def drop_alembic_version_table():
         alembic_version = _db.Table('alembic_version', _db.metadata,
                                     autoload_with=_db.engine)
         alembic_version.drop(bind=_db.engine)
+
+
+def versioning_model_classname(manager, model):
+    """Get the name of the versioned model class."""
+    if manager.options.get('use_module_name', True):
+        return '%s%sVersion' % (
+            model.__module__.title().replace('.', ''), model.__name__)
+    else:
+        return '%sVersion' % (model.__name__,)
+
+
+def versioning_models_registered(manager, base):
+    """Return True if all versioning models have been registered."""
+    declared_models = base._decl_class_registry.keys()
+    return all(versioning_model_classname(manager, c) in declared_models
+               for c in manager.pending_classes)

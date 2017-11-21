@@ -26,10 +26,14 @@
 
 import pytest
 import sqlalchemy as sa
+from mock import patch
+from sqlalchemy_continuum import remove_versioning
 from sqlalchemy_utils.types.encrypted import EncryptedType
+from test_db import _mock_entry_points
 
 from invenio_db import InvenioDB
-from invenio_db.utils import rebuild_encrypted_properties
+from invenio_db.utils import rebuild_encrypted_properties, \
+    versioning_model_classname, versioning_models_registered
 
 
 def test_rebuild_encrypted_properties(db, app):
@@ -73,3 +77,22 @@ def test_rebuild_encrypted_properties(db, app):
 
     with app.app_context():
         db.drop_all()
+
+
+def test_versioning_model_classname(db, app):
+    """Test the versioning model utilities."""
+    class FooClass(db.Model):
+        __versioned__ = {}
+        pk = db.Column(db.Integer, primary_key=True)
+
+    app.config['DB_VERSIONING'] = True
+    idb = InvenioDB(app)
+    manager = idb.versioning_manager
+    manager.options['use_module_name'] = True
+    assert versioning_model_classname(manager, FooClass) == \
+        'Test_UtilsFooClassVersion'
+    manager.options['use_module_name'] = False
+    assert versioning_model_classname(
+        manager, FooClass) == 'FooClassVersion'
+    assert versioning_models_registered(manager, db.Model)
+    remove_versioning(manager=manager)

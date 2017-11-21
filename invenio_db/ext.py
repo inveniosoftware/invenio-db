@@ -35,6 +35,7 @@ from sqlalchemy_utils.functions import get_class_by_table
 
 from .cli import db as db_cmd
 from .shared import db
+from .utils import versioning_models_registered
 
 
 class InvenioDB(object):
@@ -95,7 +96,8 @@ class InvenioDB(object):
         if app.config['DB_VERSIONING']:
             manager = self.versioning_manager
             if manager.pending_classes:
-                manager.builder.configure_versioned_classes()
+                if not versioning_models_registered(manager, database.Model):
+                    manager.builder.configure_versioned_classes()
             elif 'transaction' not in database.metadata.tables:
                 manager.declarative_base = database.Model
                 manager.create_transaction_model()
