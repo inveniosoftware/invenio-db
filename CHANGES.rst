@@ -24,10 +24,7 @@
 Changes
 =======
 
-Version 1.0.0b8 (released 2017-08-09)
+Version 1.0.0b9 (released 2017-11-22)
 -------------------------------------
 
 - Initial public release.
-- Versioning support using SQLAlchemy-Continuum.
-- Upgrades using Alembic.
-- Utils for migrating encrypted fields when the secret key changes.
