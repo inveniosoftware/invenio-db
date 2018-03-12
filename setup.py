@@ -34,7 +34,7 @@ history = open('CHANGES.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'cryptography>=1.5',
+    'cryptography>=2.1.4',
     'isort>=4.2.2',
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
@@ -52,7 +52,7 @@ extras_require = {
         'pymysql>=0.6.7',
     ],
     'postgresql': [
-        'psycopg2>=2.6.1',
+        'psycopg2>=2.7.3',
     ],
     'versioning': [
         'SQLAlchemy-Continuum>=1.3',
