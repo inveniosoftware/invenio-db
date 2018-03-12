@@ -28,7 +28,7 @@ import pytest
 import sqlalchemy as sa
 from mock import patch
 from sqlalchemy_continuum import remove_versioning
-from sqlalchemy_utils.types.encrypted import EncryptedType
+from sqlalchemy_utils.types import EncryptedType
 from test_db import _mock_entry_points
 
 from invenio_db import InvenioDB
