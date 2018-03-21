@@ -5,12 +5,19 @@
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
-Authors
-=======
+Contributors
+============
 
-Database management for Invenio.
-
-- Jiri Kuncar <jiri.kuncar@cern.ch>
-- Lars Holm Nielsen <lars.holm.nielsen@cern.ch>
-- Sami Hiltunen <sami.mikael.hiltunen@cern.ch>
-- Tibor Simko <tibor.simko@cern.ch>
+- Alexander Ioannidis
+- Alizee Pace
+- Dinos Kousidis
+- Esteban J. G. Gabancho
+- Jacopo Notarstefano
+- Jiri Kuncar
+- Jose Benito Gonzalez Lopez
+- Lars Holm Nielsen
+- Leonardo Rossi
+- Nicolas Harraudeau
+- Paulina Lach
+- Sami Hiltunen
+- Tibor Simko
