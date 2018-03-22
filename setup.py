@@ -35,7 +35,7 @@ extras_require = {
         'pymysql>=0.6.7',
     ],
     'postgresql': [
-        'psycopg2>=2.7.3',
+        'psycopg2-binary>=2.7.4',
     ],
     'versioning': [
         'SQLAlchemy-Continuum>=1.3',
