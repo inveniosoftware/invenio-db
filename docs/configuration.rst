@@ -49,6 +49,6 @@ packages.
 
 Please check following packages for further configuration options:
 
-1. `Flask-SQLAlchemy <https://Flask-SQLAlchemy.readthedocs.io/config.html>`_
+1. `Flask-SQLAlchemy <https://flask-sqlalchemy.readthedocs.io/en/stable/config/>`_
 2. `Flask-Alembic <https://flask-alembic.readthedocs.io/en/stable/#configuration>`_
 3. `SQLAlchemy-Continuum <https://sqlalchemy-continuum.readthedocs.io/en/latest/configuration.html>`_

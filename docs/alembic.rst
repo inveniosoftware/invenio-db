@@ -125,4 +125,4 @@ Testing revisions
 
 When initially creating alembic revisions one has to provide a test case for them.
 
-The test for the created revisions starts from an empty DB, upgrades to the last branch revision and then downgrades to the base. We can check that there are no discrepancies in the state of the DB between the revisions and the models, by asserting that alembic.compare_metadata() returns an empty list. An example can be found here: https://github.com/inveniosoftware/invenio-oauthclient/blob/master/tests/test_app.py#L141
+The test for the created revisions starts from an empty DB, upgrades to the last branch revision and then downgrades to the base. We can check that there are no discrepancies in the state of the DB between the revisions and the models, by asserting that alembic.compare_metadata() returns an empty list. An example can be found here: `test_app.py#L130 <https://github.com/inveniosoftware/invenio-oauthclient/blob/d46de4d5e8269395b69230694ba073af88406404/tests/test_app.py#L130>`_
