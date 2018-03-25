@@ -9,6 +9,9 @@
  Invenio-DB
 ============
 
+.. image:: https://img.shields.io/github/license/inveniosoftware/invenio-db.svg
+        :target: https://github.com/inveniosoftware/invenio-db/blob/master/LICENSE
+
 .. image:: https://img.shields.io/travis/inveniosoftware/invenio-db.svg
         :target: https://travis-ci.org/inveniosoftware/invenio-db
 
