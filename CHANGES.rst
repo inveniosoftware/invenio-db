@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.0.2 (released 2018-06-22)
+
+- Pin SQLAlchemy-Continuum.
+
 Version 1.0.1 (released 2018-05-16)
 
 - Minor fixes in documenation links and the license file.
