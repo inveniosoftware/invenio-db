@@ -38,7 +38,7 @@ extras_require = {
         'psycopg2-binary>=2.7.4',
     ],
     'versioning': [
-        'SQLAlchemy-Continuum>=1.3,<1.3.5',
+        'SQLAlchemy-Continuum>=1.3.6',
     ],
     'tests': tests_require,
 }
