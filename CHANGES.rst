@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.0.3 (released 2019-02-22)
+
+- Added handling in case of missing Sqlite db file.
+
 Version 1.0.2 (released 2018-06-22)
 
 - Pin SQLAlchemy-Continuum.
