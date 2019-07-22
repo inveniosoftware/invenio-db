@@ -29,7 +29,7 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.5.1',
+        'Sphinx>=1.8.0',
     ],
     'mysql': [
         'pymysql>=0.6.7',

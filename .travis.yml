@@ -23,13 +23,16 @@ services:
 env:
   - EXTRAS=sqlite REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   - EXTRAS=mysql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-  - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
+  - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
+  - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
   - EXTRAS=sqlite REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   - EXTRAS=mysql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-  - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
+  - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
+  - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
   - EXTRAS=sqlite REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   - EXTRAS=mysql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-  - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
+  - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
+  - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
 
 python:
   - "2.7"
@@ -40,7 +43,8 @@ matrix:
   allow_failures:
     - env: EXTRAS=sqlite REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
     - env: EXTRAS=mysql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-    - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
 
 before_install:
   - "travis_retry pip install --upgrade pip setuptools py"
