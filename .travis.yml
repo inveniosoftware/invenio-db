@@ -37,6 +37,10 @@ python:
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - env: EXTRAS=sqlite REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
+    - env: EXTRAS=mysql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
 
 before_install:
   - "travis_retry pip install --upgrade pip setuptools py"
