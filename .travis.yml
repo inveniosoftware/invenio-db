@@ -13,6 +13,13 @@ sudo: false
 
 language: python
 
+addons:
+  postgresql: '10'
+  apt:
+    packages:
+      - postgresql-10
+      - postgresql-client-10
+
 cache:
   - pip
 
@@ -21,6 +28,8 @@ services:
   - postgresql
 
 env:
+  global:
+    - PGPORT=5433
   - EXTRAS=sqlite REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   - EXTRAS=mysql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
   - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
@@ -37,6 +46,11 @@ python:
 
 matrix:
   fast_finish: true
+  include:
+    - addons:
+        postgresql: 9.6
+    - addons:
+        postgresql: 10
 
 before_install:
   - "travis_retry pip install --upgrade pip setuptools py"
