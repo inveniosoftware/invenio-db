@@ -24,4 +24,3 @@
 
 Database management for Invenio.
 Further documentation available on https://invenio-db.readthedocs.io/
-
