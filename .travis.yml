@@ -22,6 +22,13 @@ services:
   - mysql
   - postgresql
 
+addons:
+  postgresql: "10"
+  apt:
+    packages:
+      - postgresql-10
+      - postgresql-client-10
+
 env:
   matrix:
     - EXTRAS=sqlite REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
@@ -47,18 +54,20 @@ matrix:
         postgresql: 9.6
         apt:
           packages:
-            - postgresql-server-dev-9.6
+            - postgresql-9.6
+            - postgresql-client-9.6
       env:
-        - POSTGRESQL=9.6
+        - POSTGRESQL_VERSION=9.6
       install:
         - sudo make install
     - addons:
         postgresql: 10
         apt:
           packages:
-            - postgresql-server-dev-10
+            - postgresql-10
+            - postgresql-client-10
       env:
-        - POSTGRESQL=10
+        - POSTGRESQL_VERSION=10
       install:
         - sudo make install
   fast_finish: true
@@ -77,11 +86,15 @@ before_install:
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=min setup.py > .travis-lowest-requirements.txt"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=pypi setup.py > .travis-release-requirements.txt"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
+  - "psql --version"
   - sudo service postgresql stop && sudo service postgresql start $POSTGRESQL_VERSION
+  - "psql --version"
   - "echo ${POSTGRESQL_VERSION}"
+  - "psql --version"
   - "mysql -e 'CREATE DATABASE IF NOT EXISTS invenio;' -uroot"
   - "psql -c 'CREATE DATABASE invenio;' -U postgres"
   - psql -U postgres -tc 'SHOW server_version'
+  - travis_setup_postgresql $POSTGRESQL_VERSION
 
 install:
   - "travis_retry pip install -r .travis-${REQUIREMENTS}-requirements.txt"
@@ -91,6 +104,7 @@ install:
 
 script:
   - "./run-tests.sh"
+
 
 after_success:
   - coveralls
