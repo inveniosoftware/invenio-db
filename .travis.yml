@@ -44,9 +44,23 @@ python:
 matrix:
   include:
     - addons:
-        postgresql: "9.6"
+        postgresql: 9.6
+        apt:
+          packages:
+            - postgresql-server-dev-9.6
+      env:
+        - POSTGRESQL=9.6
+      install:
+        - sudo make install
     - addons:
-        postgresql: "10"
+        postgresql: 10
+        apt:
+          packages:
+            - postgresql-server-dev-10
+      env:
+        - POSTGRESQL=10
+      install:
+        - sudo make install
   fast_finish: true
   allow_failures:
     - env: EXTRAS=sqlite REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
@@ -55,20 +69,25 @@ matrix:
     - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
 
 before_install:
+  - sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+  - curl -s -o - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+  - sudo apt-get update
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls requirements-builder"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=min setup.py > .travis-lowest-requirements.txt"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=pypi setup.py > .travis-release-requirements.txt"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
-  - "sudo service postgresql stop && sudo service postgresql start ${POSTGRESQL_VERSION}"
+  - sudo service postgresql stop && sudo service postgresql start $POSTGRESQL_VERSION
   - "echo ${POSTGRESQL_VERSION}"
   - "mysql -e 'CREATE DATABASE IF NOT EXISTS invenio;' -uroot"
   - "psql -c 'CREATE DATABASE invenio;' -U postgres"
+  - psql -U postgres -tc 'SHOW server_version'
 
 install:
   - "travis_retry pip install -r .travis-${REQUIREMENTS}-requirements.txt"
   - "travis_retry pip install -e .[docs,versioning,tests,$EXTRAS]"
   - "psql --version"
+  - psql -U postgres -tc 'SHOW server_version'
 
 script:
   - "./run-tests.sh"
