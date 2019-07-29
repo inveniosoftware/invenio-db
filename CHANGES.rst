@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.0.4 (released 2019-07-29)
+
+- Unpin sqlalchemy-continuum
+- Added tests for postgresql 10
+
 Version 1.0.3 (released 2019-02-22)
 
 - Added handling in case of missing Sqlite db file.
