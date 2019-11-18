@@ -20,6 +20,7 @@ Invenio-DB.
    configuration
    usage
    alembic
+   session_management
    examplesapp
 
 
