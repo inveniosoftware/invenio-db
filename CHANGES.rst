@@ -8,6 +8,16 @@
 Changes
 =======
 
+Version 1.0.5 (released 2020-05-11)
+
+- Deprecated Python versions lower than 3.6.0. Now supporting 3.6.0 and 3.7.0
+- Use centrally managed Flask version (through Invenio-Base)
+- Bumped SQLAlchemy version to ``>=1.1.0``
+- SQLAlchemy-Utils set to ``<0.36`` due to breaking changes with MySQL
+  (``VARCHAR`` length)
+- Enriched documentation on DB session management
+- Stop using example app
+
 Version 1.0.4 (released 2019-07-29)
 
 - Unpin sqlalchemy-continuum
