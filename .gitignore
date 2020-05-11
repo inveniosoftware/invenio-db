@@ -62,8 +62,5 @@ target/
 # Tests
 tests/test.db
 
-# Examples
-examples/test.db
-
 # Vim swapfiles
 .*.sw?

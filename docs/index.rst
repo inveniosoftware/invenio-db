@@ -21,7 +21,6 @@ Invenio-DB.
    usage
    alembic
    session_management
-   examplesapp
 
 
 API Reference

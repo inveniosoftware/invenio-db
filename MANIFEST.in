@@ -19,7 +19,6 @@ recursive-include docs *.bat
 recursive-include docs *.py
 recursive-include docs *.rst
 recursive-include docs Makefile
-recursive-include examples *.py
 recursive-include invenio_db *.mako
 recursive-include invenio_db *.py
 recursive-include tests *.py
