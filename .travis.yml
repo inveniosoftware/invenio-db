@@ -20,12 +20,28 @@ services:
   - mysql
   - postgresql
 
-addons:
-  postgresql: "10"
-  apt:
-    packages:
-      - postgresql-10
-      - postgresql-client-10
+matrix:
+  include:
+    - addons:
+        postgresql: '9.6'
+    - addons:
+        postgresql: '10'
+        apt:
+          packages:
+          - postgresql-10
+          - postgresql-client-10
+    - addons:
+        postgresql: '11'
+        apt:
+          packages:
+          - postgresql-11
+          - postgresql-client-11
+    - addons:
+        postgresql: '12'
+        apt:
+          packages:
+          - postgresql-12
+          - postgresql-client-12
 
 env:
   matrix:
@@ -33,14 +49,20 @@ env:
     - EXTRAS=mysql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
     - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
     - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
+    - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="11"
+    - EXTRAS=postgresql REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="12"
     - EXTRAS=sqlite REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
     - EXTRAS=mysql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
     - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
     - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
+    - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="11"
+    - EXTRAS=postgresql REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="12"
     - EXTRAS=sqlite REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
     - EXTRAS=mysql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
     - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
     - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
+    - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="11"
+    - EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="12"
 
 python:
   - "3.6"
@@ -54,6 +76,8 @@ matrix:
     - env: EXTRAS=mysql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
     - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="9.6"
     - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="10"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="11"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" POSTGRESQL_VERSION="12"
     - python: 3.8
 
 before_install:
@@ -62,10 +86,11 @@ before_install:
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=min setup.py > .travis-lowest-requirements.txt"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=pypi setup.py > .travis-release-requirements.txt"
   - "requirements-builder -e docs,versioning,tests,$EXTRAS --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
+  - if [ $EXTRAS == "postgresql" ]; then sudo systemctl stop postgresql; fi
+  - if [ $EXTRAS == "postgresql" ]; then travis_setup_postgresql $POSTGRESQL_VERSION; fi
+  - if [ $EXTRAS == "postgresql" ]; then sudo systemctl start postgresql@$POSTGRESQL_VERSION-main; fi
   - "psql --version"
-  - if [$EXTRAS == "postgresql"]; then sudo systemctl stop postgresql; fi
-  - if [$EXTRAS == "postgresql"]; then travis_setup_postgresql $POSTGRESQL_VERSION; fi
-  - if [$EXTRAS == "postgresql"]; then sudo systemctl start postgresql@$POSTGRESQL_VERSION-main; fi
+  - "pg_isready"
   - "mysql -e 'CREATE DATABASE IF NOT EXISTS invenio;' -uroot"
   - "psql -c 'CREATE DATABASE invenio;' -U postgres"
 
