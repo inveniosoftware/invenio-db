@@ -55,7 +55,7 @@ install_requires = [
     'invenio-base>=1.2.2',
     'Flask-Alembic>=2.0.1',
     'Flask-SQLAlchemy>=2.1',
-    'SQLAlchemy>=1.1.0',
+    'SQLAlchemy>=1.2.18',
     'SQLAlchemy-Utils>=0.33.1,<0.36',
 ]
 
