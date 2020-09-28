@@ -19,7 +19,7 @@ _db = LocalProxy(lambda: current_app.extensions['sqlalchemy'].db)
 
 
 def rebuild_encrypted_properties(old_key, model, properties):
-    """Rebuild a model's EncryptedType properties when the SECRET_KEY is changed.
+    """Rebuild model's EncryptedType properties when the SECRET_KEY is changed.
 
     :param old_key: old SECRET_KEY.
     :param model: the affected db model.

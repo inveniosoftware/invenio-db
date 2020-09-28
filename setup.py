@@ -16,15 +16,15 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'pytest-invenio>=1.3.4',
+    'pytest-invenio>=1.4.0',
     'cryptography>=2.1.4',
     'mock>=1.3.0',
-    'pytest<6.0.0',  # FIXME: unping when fix pytest-invenio#54
+    'docker-services-cli>=0.2.0',
 ]
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.8.0',
+        'Sphinx>=3.0.0',
     ],
     'mysql': [
         'pymysql>=0.6.7',
@@ -42,12 +42,8 @@ extras_require['all'] = []
 for reqs in extras_require.values():
     extras_require['all'].extend(reqs)
 
-setup_requires = [
-    'pytest-runner>=2.6.2',
-]
-
 install_requires = [
-    'invenio-base>=1.2.2',
+    'invenio-base>=1.2.3',
     'Flask-Alembic>=2.0.1',
     'Flask-SQLAlchemy>=2.1',
     'SQLAlchemy>=1.1.0',
@@ -86,7 +82,6 @@ setup(
     },
     extras_require=extras_require,
     install_requires=install_requires,
-    setup_requires=setup_requires,
     tests_require=tests_require,
     classifiers=[
         'Environment :: Web Environment',
