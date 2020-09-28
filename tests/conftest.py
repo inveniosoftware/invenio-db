@@ -20,6 +20,7 @@ from flask.cli import ScriptInfo
 
 @pytest.fixture()
 def db():
+    """Database fixture with session sharing."""
     import invenio_db
     from invenio_db import shared
     db = invenio_db.db = shared.db = shared.SQLAlchemy(

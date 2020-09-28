@@ -16,15 +16,10 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'check-manifest>=0.25',
-    'coverage>=4.0',
+    'pytest-invenio>=1.3.4',
     'cryptography>=2.1.4',
-    'isort>=4.2.2',
     'mock>=1.3.0',
-    'pydocstyle>=1.0.0',
-    'pytest-cov>=1.8.0',
-    'pytest-pep8>=1.0.6',
-    'pytest>=3.8.0,<5.0.0',
+    'pytest<6.0.0',  # FIXME: unping when fix pytest-invenio#54
 ]
 
 extras_require = {
