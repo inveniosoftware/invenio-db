@@ -26,18 +26,24 @@ env:
     - EXTRAS=mysql REQUIREMENTS=lowest MYSQL_VERSION="MYSQL_8_LATEST" DB=mysql SQLALCHEMY_DATABASE_URI="mysql+pymysql://invenio:invenio@localhost:3306/invenio"
     - EXTRAS=postgresql REQUIREMENTS=lowest POSTGRESQL_VERSION="POSTGRESQL_9_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     - EXTRAS=postgresql REQUIREMENTS=lowest POSTGRESQL_VERSION="POSTGRESQL_10_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - EXTRAS=postgresql REQUIREMENTS=lowest POSTGRESQL_VERSION="POSTGRESQL_11_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - EXTRAS=postgresql REQUIREMENTS=lowest POSTGRESQL_VERSION="POSTGRESQL_12_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     # release requirements
     - EXTRAS=sqlite REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
     - EXTRAS=mysql REQUIREMENTS=release MYSQL_VERSION="MYSQL_5_LATEST" DB=mysql SQLALCHEMY_DATABASE_URI="mysql+pymysql://invenio:invenio@localhost:3306/invenio"
     - EXTRAS=mysql REQUIREMENTS=release MYSQL_VERSION="MYSQL_8_LATEST" DB=mysql SQLALCHEMY_DATABASE_URI="mysql+pymysql://invenio:invenio@localhost:3306/invenio"
     - EXTRAS=postgresql REQUIREMENTS=release POSTGRESQL_VERSION="POSTGRESQL_9_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     - EXTRAS=postgresql REQUIREMENTS=release POSTGRESQL_VERSION="POSTGRESQL_10_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - EXTRAS=postgresql REQUIREMENTS=release POSTGRESQL_VERSION="POSTGRESQL_11_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - EXTRAS=postgresql REQUIREMENTS=release POSTGRESQL_VERSION="POSTGRESQL_12_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     # devel requirements
     - EXTRAS=sqlite REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
     - EXTRAS=mysql REQUIREMENTS=devel MYSQL_VERSION="MYSQL_5_LATEST" DB=mysql SQLALCHEMY_DATABASE_URI="mysql+pymysql://invenio:invenio@localhost:3306/invenio"
     - EXTRAS=mysql REQUIREMENTS=devel MYSQL_VERSION="MYSQL_8_LATEST" DB=mysql SQLALCHEMY_DATABASE_URI="mysql+pymysql://invenio:invenio@localhost:3306/invenio"
     - EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_9_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     - EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_10_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_11_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_12_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
 
 python:
   - "3.6"
@@ -54,6 +60,8 @@ matrix:
     - env: EXTRAS=mysql REQUIREMENTS=devel MYSQL_VERSION="MYSQL_8_LATEST" DB=mysql SQLALCHEMY_DATABASE_URI="mysql+pymysql://invenio:invenio@localhost:3306/invenio"
     - env: EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_9_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     - env: EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_10_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_11_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
+    - env: EXTRAS=postgresql REQUIREMENTS=devel POSTGRESQL_VERSION="POSTGRESQL_12_LATEST" DB=postgresql SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
     - python: 3.8
 
 before_install:
