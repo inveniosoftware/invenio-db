@@ -19,7 +19,6 @@ tests_require = [
     'pytest-invenio>=1.4.0',
     'cryptography>=2.1.4',
     'mock>=1.3.0',
-    'docker-services-cli>=0.2.0',
 ]
 
 extras_require = {

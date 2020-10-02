@@ -1,12 +1,17 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2015-2018 CERN.
+    Copyright (C) 2015-2020 CERN.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
 Changes
 =======
+
+Version 1.0.6 (released 2020-10-02)
+
+- Bump SQLAlchemy version to ``>=1.2.18`` to add support for PostgreSQL 12
+- Integrate ``pytest-invenio`` and ``docker-services-cli`` for testing
 
 Version 1.0.5 (released 2020-05-11)
 
