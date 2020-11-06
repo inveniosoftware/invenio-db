@@ -80,10 +80,11 @@ def drop(verbose):
 @with_appcontext
 def init():
     """Create database."""
-    click.secho('Creating database {0}'.format(_db.engine.url),
-                fg='green')
-    if not database_exists(str(_db.engine.url)):
-        create_database(str(_db.engine.url))
+    displayed_database = _db.engine.url.__to_string__(hide_password=True)
+    click.secho(f'Creating database {displayed_database}', fg='green')
+    database_url = str(_db.engine.url)
+    if not database_exists(database_url):
+        create_database(database_url)
 
 
 @db.command()
@@ -93,7 +94,8 @@ def init():
 @with_appcontext
 def destroy():
     """Drop database."""
-    click.secho('Destroying database {0}'.format(_db.engine.url),
+    displayed_database = _db.engine.url.__to_string__(hide_password=True)
+    click.secho(f'Destroying database {displayed_database}',
                 fg='red', bold=True)
     if _db.engine.name == 'sqlite':
         try:
