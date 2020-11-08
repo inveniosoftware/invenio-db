@@ -53,13 +53,13 @@ jobs:
             REQUIREMENTS_LEVEL: "pypi"
           - services: release-mysql5
             DB: mysql
-            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://"
+            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://invenio:invenio@localhost:3306/invenio"
             MYSQL_VERSION: MYSQL_5_LATEST
             EXTRAS: "docs,versioning,tests,mysql"
             REQUIREMENTS_LEVEL: "pypi"
           - services: release-mysql8
             DB: mysql
-            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://"
+            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://invenio:invenio@localhost:3306/invenio"
             MYSQL_VERSION: MYSQL_8_LATEST
             EXTRAS: "docs,versioning,tests,mysql"
             REQUIREMENTS_LEVEL: "pypi"
@@ -71,7 +71,7 @@ jobs:
             REQUIREMENTS_LEVEL: "min"
           - services: lowest-mysql5
             DB: mysql
-            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://"
+            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://invenio:invenio@localhost:3306/invenio"
             MYSQL_VERSION: MYSQL_5_LATEST
             EXTRAS: "docs,versioning,tests,postgresql"
             REQUIREMENTS_LEVEL: "min"
