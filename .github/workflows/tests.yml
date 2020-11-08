@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
           python-version: [3.6, 3.7, 3.8]
-          services: [release-sqlite, release-pg9, release-pg10, release-pg11, release-pg12, release-mysql5, release-mysql8, lowest-pg9, lowest-mysql5, lowest-sqlite]
+          services: [release-sqlite, release-pg9, release-pg10, release-pg11, release-pg12, release-mysql5, lowest-pg9, lowest-mysql5, lowest-sqlite]
           include:
           - services: release-sqlite
             SQLALCHEMY_DATABASE_URI: "sqlite:///test.db"
@@ -57,12 +57,13 @@ jobs:
             MYSQL_VERSION: MYSQL_5_LATEST
             EXTRAS: "docs,versioning,tests,mysql"
             REQUIREMENTS_LEVEL: "pypi"
-          - services: release-mysql8
-            DB: mysql
-            SQLALCHEMY_DATABASE_URI: "mysql+pymysql://invenio:invenio@localhost:3306/invenio"
-            MYSQL_VERSION: MYSQL_8_LATEST
-            EXTRAS: "docs,versioning,tests,mysql"
-            REQUIREMENTS_LEVEL: "pypi"
+          # NOTE: To reenable, add "release-mysql8" to "services" above.
+          # - services: release-mysql8
+          #   DB: mysql
+          #   SQLALCHEMY_DATABASE_URI: "mysql+pymysql://invenio:invenio@localhost:3306/invenio"
+          #   MYSQL_VERSION: MYSQL_8_LATEST
+          #   EXTRAS: "docs,versioning,tests,mysql"
+          #   REQUIREMENTS_LEVEL: "pypi"
           - services: lowest-pg9
             DB: postgresql
             SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"

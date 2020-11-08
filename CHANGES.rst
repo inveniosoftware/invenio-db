@@ -8,10 +8,15 @@
 Changes
 =======
 
+Version 1.0.7 (released 2020-11-08)
+
+- Hides password from output when running db init or db create.
+
 Version 1.0.6 (released 2020-10-02)
 
 - Bump SQLAlchemy version to ``>=1.2.18`` to add support for PostgreSQL 12
 - Integrate ``pytest-invenio`` and ``docker-services-cli`` for testing
+- Support Python 3.8
 
 Version 1.0.5 (released 2020-05-11)
 

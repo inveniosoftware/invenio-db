@@ -68,7 +68,6 @@ def test_init(db, app):
 
     app.config['DB_VERSIONING'] = False
     InvenioDB(app, entry_point_group=False, db=db)
-
     with app.app_context():
         db.create_all()
         assert len(db.metadata.tables) == 2
