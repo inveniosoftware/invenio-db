@@ -8,7 +8,7 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 
 docker-services-cli up ${DB} && \
-python -m check_manifest --ignore ".travis-*" && \
+python -m check_manifest --ignore ".*-requirements.txt" && \
 python -m sphinx.cmd.build -qnNW docs docs/_build/html && \
 python -m pytest
 tests_exit_code=$?
