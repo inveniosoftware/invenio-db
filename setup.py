@@ -18,7 +18,7 @@ history = open('CHANGES.rst').read()
 tests_require = [
     'pytest-invenio>=1.4.0',
     'cryptography>=2.1.4',
-    'mock>=1.3.0',
+    'mock>=4.0.0',
 ]
 
 extras_require = {
@@ -26,13 +26,13 @@ extras_require = {
         'Sphinx>=3.0.0',
     ],
     'mysql': [
-        'pymysql>=0.6.7',
+        'pymysql>=0.10.1',
     ],
     'postgresql': [
-        'psycopg2-binary>=2.7.4',
+        'psycopg2-binary>=2.8.6',
     ],
     'versioning': [
-        'SQLAlchemy-Continuum>=1.3.6',
+        'SQLAlchemy-Continuum>=1.3.11',
     ],
     'tests': tests_require,
 }
