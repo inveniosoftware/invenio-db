@@ -11,6 +11,7 @@ Changes
 Version 1.0.7 (released 2020-11-08)
 
 - Hides password from output when running db init or db create.
+- Disables MySQL 8 tests due to issue with Alembic
 
 Version 1.0.6 (released 2020-10-02)
 
