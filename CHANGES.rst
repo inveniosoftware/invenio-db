@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.0.8 (released 2020-11-16)
+
+- Pins SQLAlchemy to >=1.2.18 and <1.4 due to incompatibility between
+  SQLAlchemy and SQLAlchemy-Utils.
+
 Version 1.0.7 (released 2020-11-08)
 
 - Hides password from output when running db init or db create.
