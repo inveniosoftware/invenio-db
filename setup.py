@@ -16,9 +16,9 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'pytest-invenio>=1.4.0',
-    'cryptography>=2.1.4',
-    'mock>=4.0.0',
+    "pytest-invenio>=1.4.0",
+    "cryptography>=2.1.4",
+    "mock>=4.0.0"
 ]
 
 extras_require = {
