@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.0.9 (released 2021-03-18)
+
+- Pins Flask-SQLAlchemy below 2.5 due to breaking changes. Perhaps to revisit when fixed.
+
 Version 1.0.8 (released 2020-11-16)
 
 - Pins SQLAlchemy to >=1.2.18 and <1.4 due to incompatibility between
