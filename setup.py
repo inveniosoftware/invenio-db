@@ -45,9 +45,9 @@ for reqs in extras_require.values():
 install_requires = [
     'invenio-base>=1.2.3',
     'Flask-Alembic>=2.0.1',
-    'Flask-SQLAlchemy>=2.1,<2.5.0',
-    'SQLAlchemy>=1.2.18,<1.4.0',
-    'SQLAlchemy-Utils>=0.33.1,<0.36',
+    'Flask-SQLAlchemy>=2.1,<2.6.0',
+    'SQLAlchemy>=1.2.18,<1.5.0',
+    'SQLAlchemy-Utils>=0.33.1,<0.38',
 ]
 
 packages = find_packages()
