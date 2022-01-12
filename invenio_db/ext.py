@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2022 RERO.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -12,7 +13,8 @@ from __future__ import absolute_import, print_function
 
 import os
 
-import pkg_resources
+import importlib_metadata
+import importlib_resources
 import sqlalchemy as sa
 from flask_alembic import Alembic
 from sqlalchemy_utils.functions import get_class_by_table
@@ -35,17 +37,16 @@ class InvenioDB(object):
         """Initialize application object."""
         self.init_db(app, **kwargs)
 
+        script_location = str(
+            importlib_resources.files('invenio_db') / 'alembic')
+        version_locations = [(base_entry.name, str(importlib_resources.files(
+            base_entry.module) / os.path.join(*base_entry.attr))
+        ) for base_entry in importlib_metadata.entry_points().get(
+            'invenio_db.alembic', [])
+        ]
         app.config.setdefault('ALEMBIC', {
-            'script_location': pkg_resources.resource_filename(
-                'invenio_db', 'alembic'
-            ),
-            'version_locations': [
-                (base_entry.name, pkg_resources.resource_filename(
-                    base_entry.module_name, os.path.join(*base_entry.attrs)
-                )) for base_entry in pkg_resources.iter_entry_points(
-                    'invenio_db.alembic'
-                )
-            ],
+                'script_location': script_location,
+                'version_locations': version_locations,
         })
 
         self.alembic.init_app(app)
@@ -70,8 +71,8 @@ class InvenioDB(object):
 
         # Initialize model bases
         if entry_point_group:
-            for base_entry in pkg_resources.iter_entry_points(
-                    entry_point_group):
+            for base_entry in importlib_metadata.entry_points().get(
+                    entry_point_group, []):
                 base_entry.load()
 
         # All models should be loaded by now.
@@ -90,8 +91,8 @@ class InvenioDB(object):
     def init_versioning(self, app, database, versioning_manager=None):
         """Initialize the versioning support using SQLAlchemy-Continuum."""
         try:
-            pkg_resources.get_distribution('sqlalchemy_continuum')
-        except pkg_resources.DistributionNotFound:  # pragma: no cover
+            importlib_metadata.version('sqlalchemy_continuum')
+        except importlib_metadata.PackageNotFoundError:  # pragma: no cover
             default_versioning = False
         else:
             default_versioning = True
@@ -115,8 +116,8 @@ class InvenioDB(object):
         # Try to guess user model class:
         if 'DB_VERSIONING_USER_MODEL' not in app.config:  # pragma: no cover
             try:
-                pkg_resources.get_distribution('invenio_accounts')
-            except pkg_resources.DistributionNotFound:
+                importlib_metadata.version('invenio_accounts')
+            except importlib_metadata.PackageNotFoundError:
                 user_cls = None
             else:
                 user_cls = 'User'

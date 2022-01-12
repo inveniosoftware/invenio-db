@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2022 RERO.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -17,7 +18,8 @@ from test_db import _mock_entry_points
 from invenio_db import InvenioDB
 
 
-@patch('pkg_resources.iter_entry_points', _mock_entry_points)
+@patch('importlib_metadata.entry_points',
+       _mock_entry_points('invenio_db.models_a'))
 def test_disabled_versioning(db, app):
     """Test SQLAlchemy-Continuum with disabled versioning."""
     InvenioDB(app, entry_point_group='invenio_db.models_a')
@@ -60,7 +62,8 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
         remove_versioning(manager=idb.versioning_manager)
 
 
-@patch('pkg_resources.iter_entry_points', _mock_entry_points)
+@patch('importlib_metadata.entry_points',
+       _mock_entry_points('invenio_db.models_b'))
 def test_versioning(db, app):
     """Test SQLAlchemy-Continuum enabled versioning."""
     app.config['DB_VERSIONING'] = True

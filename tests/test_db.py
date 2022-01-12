@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2022 RERO.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -15,8 +16,8 @@ import sqlalchemy as sa
 from click.testing import CliRunner
 from conftest import ScriptInfo
 from flask import Flask
+from importlib_metadata import EntryPoint
 from mock import patch
-from pkg_resources import EntryPoint
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_continuum import VersioningManager, remove_versioning
 from sqlalchemy_utils.functions import create_database, drop_database
@@ -39,20 +40,29 @@ class MockEntryPoint(EntryPoint):
 
 
 def _mock_entry_points(name):
-    data = {
-        'invenio_db.models': [MockEntryPoint('demo.child', 'demo.child'),
-                              MockEntryPoint('demo.parent', 'demo.parent')],
-        'invenio_db.models_a': [
-            MockEntryPoint('demo.versioned_a', 'demo.versioned_a'),
-        ],
-        'invenio_db.models_b': [
-            MockEntryPoint('demo.versioned_b', 'demo.versioned_b'),
-        ],
-    }
-    names = data.keys() if name is None else [name]
-    for key in names:
-        for entry_point in data.get(key, []):
-            yield entry_point
+    def fn():
+        data = {
+            'invenio_db.models': [
+                MockEntryPoint(
+                    name='demo.child', value='demo.child', group='test'),
+                MockEntryPoint(
+                    name='demo.parent', value='demo.parent', group='test')
+            ],
+            'invenio_db.models_a': [
+                MockEntryPoint(
+                    name='demo.versioned_a', value='demo.versioned_a',
+                    group='test'),
+            ],
+            'invenio_db.models_b': [
+                MockEntryPoint(
+                    name='demo.versioned_b', value='demo.versioned_b',
+                    group='test'),
+            ],
+        }
+        if name:
+            return {name: data.get(name)}
+        return data
+    return fn
 
 
 def test_init(db, app):
@@ -265,7 +275,8 @@ def test_transaction(db, app):
         db.drop_all()
 
 
-@patch('pkg_resources.iter_entry_points', _mock_entry_points)
+@patch('importlib_metadata.entry_points',
+       _mock_entry_points('invenio_db.models'))
 def test_entry_points(db, app):
     """Test entrypoints loading."""
     InvenioDB(app, db=db)
