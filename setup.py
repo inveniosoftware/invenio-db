@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2020 CERN.
 # Copyright (C) 2021 Northwestern University.
+# Copyright (C) 2022 RERO.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -24,7 +25,7 @@ tests_require = [
 
 extras_require = {
     'docs': [
-        'Sphinx>=3.0.0',
+        'Sphinx==4.2.0',
     ],
     'mysql': [
         'pymysql>=0.10.1',
@@ -43,11 +44,13 @@ for reqs in extras_require.values():
     extras_require['all'].extend(reqs)
 
 install_requires = [
-    'invenio-base>=1.2.3',
     'Flask-Alembic>=2.0.1',
     'Flask-SQLAlchemy>=2.1,<2.5.0',
-    'SQLAlchemy>=1.2.18,<1.4.0',
+    'importlib_metadata>=4.4',
+    'importlib_resources>=5.0',
+    'invenio-base>=1.2.3',
     'SQLAlchemy-Utils>=0.33.1,<0.36',
+    'SQLAlchemy>=1.2.18,<1.4.0',
 ]
 
 packages = find_packages()
