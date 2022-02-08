@@ -17,6 +17,8 @@ import pytest
 from flask import Flask
 from flask.cli import ScriptInfo
 
+from invenio_db.utils import alembic_test_context
+
 
 @pytest.fixture()
 def db():
@@ -37,7 +39,8 @@ def app():
         DB_VERSIONING=False,
         DB_VERSIONING_USER_MODEL=None,
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
-                                               'sqlite:///test.db')
+                                               'sqlite:///test.db'),
+        ALEMBIC_CONTEXT=alembic_test_context()
     )
     return app
 

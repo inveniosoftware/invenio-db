@@ -89,3 +89,14 @@ def versioning_models_registered(manager, base):
     declared_models = base._decl_class_registry.keys()
     return all(versioning_model_classname(manager, c) in declared_models
                for c in manager.pending_classes)
+
+
+def alembic_test_context():
+    """Alembic test context."""
+    # skip index from alembic migrations until sqlalchemy 2.0
+    # https://github.com/sqlalchemy/sqlalchemy/discussions/7597
+    def include_object(object, name, type_, reflected, compare_to):
+        if name == 'ix_uq_partial_files_object_is_head':
+            return False
+        return True
+    return {'include_object': include_object}
