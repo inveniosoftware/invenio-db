@@ -8,6 +8,13 @@
 Changes
 =======
 
+Version 1.0.10 (released 2022-02-08)
+
+- Adds a utility for creating an alembic test context to centrally manage
+  fixes for alembic migration tests in other modules.
+
+- Replaces pkg_resources with importlib
+
 Version 1.0.9 (released 2021-03-18)
 
 - Pins Flask-SQLAlchemy below 2.5 due to breaking changes. Perhaps to revisit when fixed.
