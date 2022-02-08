@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.0.11 (released 2022-02-08)
+
+- Fixed issue with alembic version locations introduced in v1.0.10 due to the
+  importlib change.
+
 Version 1.0.10 (released 2022-02-08)
 
 - Adds a utility for creating an alembic test context to centrally manage
