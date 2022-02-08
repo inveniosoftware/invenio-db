@@ -40,7 +40,7 @@ class InvenioDB(object):
         script_location = str(
             importlib_resources.files('invenio_db') / 'alembic')
         version_locations = [(base_entry.name, str(importlib_resources.files(
-            base_entry.module) / os.path.join(*base_entry.attr))
+            base_entry.module) / os.path.join(base_entry.attr))
         ) for base_entry in importlib_metadata.entry_points().get(
             'invenio_db.alembic', [])
         ]
