@@ -40,7 +40,7 @@ class MockEntryPoint(EntryPoint):
 
 
 def _mock_entry_points(name):
-    def fn():
+    def fn(group):
         data = {
             'invenio_db.models': [
                 MockEntryPoint(
@@ -59,6 +59,8 @@ def _mock_entry_points(name):
                     group='test'),
             ],
         }
+        if group:
+            return data.get(group, [])
         if name:
             return {name: data.get(name)}
         return data
