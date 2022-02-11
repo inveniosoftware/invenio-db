@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -41,9 +42,9 @@ class InvenioDB(object):
             importlib_resources.files('invenio_db') / 'alembic')
         version_locations = [(base_entry.name, str(importlib_resources.files(
             base_entry.module) / os.path.join(base_entry.attr))
-        ) for base_entry in importlib_metadata.entry_points().get(
-            'invenio_db.alembic', [])
-        ]
+        ) for base_entry in importlib_metadata.entry_points(
+            group='invenio_db.alembic'
+        )]
         app.config.setdefault('ALEMBIC', {
                 'script_location': script_location,
                 'version_locations': version_locations,
@@ -71,8 +72,9 @@ class InvenioDB(object):
 
         # Initialize model bases
         if entry_point_group:
-            for base_entry in importlib_metadata.entry_points().get(
-                    entry_point_group, []):
+            for base_entry in importlib_metadata.entry_points(
+                    group=entry_point_group
+            ):
                 base_entry.load()
 
         # All models should be loaded by now.
