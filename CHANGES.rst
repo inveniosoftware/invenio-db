@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.0.12 (released 2022-02-14)
+
+- Fixes a deprecation warning.
+
 Version 1.0.11 (released 2022-02-08)
 
 - Fixed issue with alembic version locations introduced in v1.0.10 due to the
