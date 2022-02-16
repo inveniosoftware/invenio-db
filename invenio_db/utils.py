@@ -99,4 +99,7 @@ def alembic_test_context():
         if name == 'ix_uq_partial_files_object_is_head':
             return False
         return True
-    return {'include_object': include_object}
+    return {
+        'transaction_per_migration': True,
+        'include_object': include_object,
+    }
