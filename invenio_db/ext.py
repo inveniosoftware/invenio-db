@@ -49,6 +49,9 @@ class InvenioDB(object):
                 'script_location': script_location,
                 'version_locations': version_locations,
         })
+        app.config.setdefault('ALEMBIC_CONTEXT', {
+            'transaction_per_migration': True,
+        })
 
         self.alembic.init_app(app)
         app.extensions['invenio-db'] = self
