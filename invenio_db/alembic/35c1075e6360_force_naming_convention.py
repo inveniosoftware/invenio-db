@@ -10,7 +10,7 @@
 
 import sqlalchemy as sa
 from alembic import op, util
-from sqlalchemy.engine.reflection import Inspector
+from sqlalchemy import inspect
 
 # revision identifiers, used by Alembic.
 revision = '35c1075e6360'
@@ -35,7 +35,7 @@ def upgrade():
     metadata = ctx.opts['target_metadata']
     metadata.naming_convention = NAMING_CONVENTION
     metadata.bind = ctx.connection.engine
-    insp = Inspector.from_engine(ctx.connection.engine)
+    insp = inspect(ctx.connection.engine)
 
     for table_name in insp.get_table_names():
         if table_name not in metadata.tables:

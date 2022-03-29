@@ -18,7 +18,7 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    "pytest-invenio>=1.4.0",
+    "pytest-invenio>=1.4.5",
     "cryptography>=2.1.4",
     "mock>=4.0.0"
 ]
@@ -34,7 +34,7 @@ extras_require = {
         'psycopg2-binary>=2.8.6',
     ],
     'versioning': [
-        'SQLAlchemy-Continuum>=1.3.11',
+        'SQLAlchemy-Continuum>=1.3.12',
     ],
     'tests': tests_require,
 }
@@ -45,12 +45,11 @@ for reqs in extras_require.values():
 
 install_requires = [
     'Flask-Alembic>=2.0.1',
-    'Flask-SQLAlchemy>=2.1,<2.5.0',
-    'importlib_metadata>=4.4',
-    'importlib_resources>=5.0',
-    'invenio-base>=1.2.3',
-    'SQLAlchemy-Utils>=0.33.1,<0.36',
-    'SQLAlchemy>=1.2.18,<1.4.0',
+    'Flask-SQLAlchemy>=2.1,<3.0.0',
+    # Update constraints-min.txt if you update invenio-base version.
+    'invenio-base>=1.2.10',
+    'SQLAlchemy-Utils>=0.33.1,<0.39',
+    'SQLAlchemy>=1.2.18,<1.5.0',
 ]
 
 packages = find_packages()

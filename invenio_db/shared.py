@@ -29,12 +29,12 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 class SQLAlchemy(FlaskSQLAlchemy):
     """Implement or overide extension methods."""
 
-    def apply_driver_hacks(self, app, info, options):
+    def apply_driver_hacks(self, app, sa_url, options):
         """Call before engine creation."""
         # Don't forget to apply hacks defined on parent object.
-        super(SQLAlchemy, self).apply_driver_hacks(app, info, options)
+        super(SQLAlchemy, self).apply_driver_hacks(app, sa_url, options)
 
-        if info.drivername == 'sqlite':
+        if sa_url.drivername == 'sqlite':
             connect_args = options.setdefault('connect_args', {})
 
             if 'isolation_level' not in connect_args:
@@ -55,7 +55,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
             register_adapter(LocalProxy, adapt_proxy)
 
-        elif info.drivername == 'postgresql+psycopg2':  # pragma: no cover
+        elif sa_url.drivername == 'postgresql+psycopg2':  # pragma: no cover
             from psycopg2.extensions import adapt, register_adapter
 
             def adapt_proxy(proxy):
@@ -64,7 +64,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
             register_adapter(LocalProxy, adapt_proxy)
 
-        elif info.drivername == 'mysql+pymysql':  # pragma: no cover
+        elif sa_url.drivername == 'mysql+pymysql':  # pragma: no cover
             from pymysql import converters
 
             def escape_local_proxy(val, mapping):
@@ -77,6 +77,8 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
             converters.conversions[LocalProxy] = escape_local_proxy
             converters.encoders[LocalProxy] = escape_local_proxy
+
+        return sa_url, options
 
 
 def do_sqlite_connect(dbapi_connection, connection_record):

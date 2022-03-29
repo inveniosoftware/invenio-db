@@ -35,6 +35,15 @@ def abort_if_false(ctx, param, value):
         ctx.abort()
 
 
+def render_url(url):
+    """Render the URL for CLI output."""
+    try:
+        return url.render_as_string(hide_password=True)
+    except AttributeError:
+        # SQLAlchemy <1.4
+        return url.__to_string__(hide_password=True)
+
+
 #
 # Database commands
 #
@@ -80,7 +89,7 @@ def drop(verbose):
 @with_appcontext
 def init():
     """Create database."""
-    displayed_database = _db.engine.url.__to_string__(hide_password=True)
+    displayed_database = render_url(_db.engine.url)
     click.secho(f'Creating database {displayed_database}', fg='green')
     database_url = str(_db.engine.url)
     if not database_exists(database_url):
@@ -94,7 +103,7 @@ def init():
 @with_appcontext
 def destroy():
     """Drop database."""
-    displayed_database = _db.engine.url.__to_string__(hide_password=True)
+    displayed_database = render_url(_db.engine.url)
     click.secho(f'Destroying database {displayed_database}',
                 fg='red', bold=True)
     if _db.engine.name == 'sqlite':
