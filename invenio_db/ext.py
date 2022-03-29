@@ -65,6 +65,8 @@ class InvenioDB(object):
             'sqlite:///' + os.path.join(app.instance_path, app.name + '.db')
         )
         app.config.setdefault('SQLALCHEMY_ECHO', False)
+        # Needed for before/after_flush/commit/rollback events
+        app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', True)
 
         # Initialize Flask-SQLAlchemy extension.
         database = kwargs.get('db', db)

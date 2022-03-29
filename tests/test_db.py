@@ -13,11 +13,10 @@ from __future__ import absolute_import, print_function
 
 import pytest
 import sqlalchemy as sa
-from click.testing import CliRunner
-from conftest import ScriptInfo
 from flask import Flask
 from importlib_metadata import EntryPoint
 from mock import patch
+from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_continuum import VersioningManager, remove_versioning
 from sqlalchemy_utils.functions import create_database, drop_database
@@ -25,7 +24,7 @@ from werkzeug.utils import import_string
 
 from invenio_db import InvenioDB, shared
 from invenio_db.cli import db as db_cmd
-from invenio_db.utils import drop_alembic_version_table
+from invenio_db.utils import drop_alembic_version_table, has_table
 
 
 class MockEntryPoint(EntryPoint):
@@ -283,51 +282,43 @@ def test_entry_points(db, app):
     """Test entrypoints loading."""
     InvenioDB(app, db=db)
 
-    runner = CliRunner()
-    script_info = ScriptInfo(create_app=lambda info: app)
+    runner = app.test_cli_runner()
 
     assert len(db.metadata.tables) == 2
 
     # Test merging a base another file.
     with runner.isolated_filesystem():
-        result = runner.invoke(db_cmd, [], obj=script_info)
+        result = runner.invoke(db_cmd, [])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['init'], obj=script_info)
+        result = runner.invoke(db_cmd, ['init'])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['create', '-v'], obj=script_info)
+        result = runner.invoke(db_cmd, ['create', '-v'])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['drop'])
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop', 'create'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['drop', 'create'])
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['drop', '--yes-i-know', 'create'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['drop', '--yes-i-know', 'create'])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['destroy'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['destroy'])
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'],
-                               obj=script_info)
+        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['init'], obj=script_info)
+        result = runner.invoke(db_cmd, ['init'])
         assert result.exit_code == 0
 
 
@@ -368,35 +359,33 @@ def test_db_create_alembic_upgrade(app, db):
             if db.engine.name == 'sqlite':
                 raise pytest.skip('Upgrades are not supported on SQLite.')
             db.drop_all()
-            runner = CliRunner()
-            script_info = ScriptInfo(create_app=lambda info: app)
+            runner = app.test_cli_runner()
             # Check that 'db create' creates the same schema as
             # 'alembic upgrade'.
-            result = runner.invoke(db_cmd, ['create', '-v'], obj=script_info)
+            result = runner.invoke(db_cmd, ['create', '-v'])
             assert result.exit_code == 0
-            assert db.engine.has_table('transaction')
+            assert has_table(db.engine, 'transaction')
             assert ext.alembic.migration_context._has_version_table()
             # Note that compare_metadata does not detect additional sequences
             # and constraints.
             assert not ext.alembic.compare_metadata()
             ext.alembic.upgrade()
-            assert db.engine.has_table('transaction')
+            assert has_table(db.engine, 'transaction')
 
             ext.alembic.downgrade(target='96e796392533')
-            assert db.engine.table_names() == ['alembic_version']
+            assert inspect(db.engine).get_table_names() == ['alembic_version']
 
             # Check that 'db drop' removes all tables, including
             # 'alembic_version'.
             ext.alembic.upgrade()
-            result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'],
-                                   obj=script_info)
+            result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'])
             assert result.exit_code == 0
-            assert len(db.engine.table_names()) == 0
+            assert len(inspect(db.engine).get_table_names()) == 0
 
             ext.alembic.upgrade()
             db.drop_all()
             drop_alembic_version_table()
-            assert len(db.engine.table_names()) == 0
+            assert len(inspect(db.engine).get_table_names()) == 0
 
         finally:
             drop_database(str(db.engine.url))

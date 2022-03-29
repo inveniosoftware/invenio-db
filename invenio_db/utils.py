@@ -10,7 +10,7 @@
 """Invenio-DB utility functions."""
 
 from flask import current_app
-from sqlalchemy.engine import reflection
+from sqlalchemy import inspect
 from werkzeug.local import LocalProxy
 
 from .shared import db
@@ -25,8 +25,9 @@ def rebuild_encrypted_properties(old_key, model, properties):
     :param model: the affected db model.
     :param properties: list of properties to rebuild.
     """
-    inspector = reflection.Inspector.from_engine(db.engine)
-    primary_key_names = inspector.get_primary_keys(model.__tablename__)
+    inspector = inspect(db.engine)
+    primary_key_names = inspector.get_pk_constraint(model.__tablename__)[
+        'constrained_columns']
 
     new_secret_key = current_app.secret_key
     db.session.expunge_all()
@@ -69,7 +70,7 @@ def create_alembic_version_table():
 
 def drop_alembic_version_table():
     """Drop alembic_version table."""
-    if _db.engine.dialect.has_table(_db.engine, 'alembic_version'):
+    if has_table(_db.engine, 'alembic_version'):
         alembic_version = _db.Table('alembic_version', _db.metadata,
                                     autoload_with=_db.engine)
         alembic_version.drop(bind=_db.engine)
@@ -86,7 +87,11 @@ def versioning_model_classname(manager, model):
 
 def versioning_models_registered(manager, base):
     """Return True if all versioning models have been registered."""
-    declared_models = base._decl_class_registry.keys()
+    try:
+        registry = base.registry._class_registry
+    except AttributeError:  # SQLAlchemy <1.4
+        registry = base._decl_class_registry
+    declared_models = registry.keys()
     return all(versioning_model_classname(manager, c) in declared_models
                for c in manager.pending_classes)
 
@@ -103,3 +108,12 @@ def alembic_test_context():
         'transaction_per_migration': True,
         'include_object': include_object,
     }
+
+
+def has_table(engine, table):
+    """Determine if table exists."""
+    try:
+        return inspect(engine).has_table(table)
+    except AttributeError:
+        # SQLAlchemy <1.4
+        return engine.has_table(table)

@@ -1,0 +1,14 @@
+# The constraint file declares version contraints used for testing the minimum
+# version of dependencies. Invenio-Base v1.2.10 will cause Flask v2.1 to be
+# installed, but our minimum version of Flask-SQLAlchemy is not compatible with
+# Flask v2.1
+#
+# Invenio-Base v1.2.10 min dependencies - copy/paste the minimum version for
+# each declared dependency in setup.cfg
+blinker==1.4
+Flask==1.1.4
+importlib-metadata==4.4
+importlib-resources==5.0
+itsdangerous==1.1.0
+MarkupSafe==0.23
+Werkzeug==1.0.1

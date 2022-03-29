@@ -20,27 +20,53 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-          python-version: [3.6, 3.7, 3.8, 3.9]
+          python-version: [3.7, 3.8, 3.9]
           requirements-level: [min, pypi]
-          db-service: [postgresql10, postgresql13, mysql5]
+          db-service: [postgresql10, postgresql14, mysql5, mysql8]
           exclude:
+          - python-version: 3.7
+            requirements-level: pypi
+
+          - python-version: 3.7
+            requirements-level: min
+            db-service: postgresql14
+
+          - python-version: 3.7
+            requirements-level: min
+            db-service: mysql8
+
           - python-version: 3.8
             requirements-level: min
 
           - python-version: 3.9
             requirements-level: min
 
-          - db-service: postgresql13
-            python-version: 3.6
+          - python-version: 3.8
+            requirements-level: pypi
+            db-service: postgresql10
 
+          - python-version: 3.8
+            requirements-level: pypi
+            db-service: mysql5
+
+          - python-version: 3.9
+            requirements-level: pypi
+            db-service: postgresql10
+
+          - python-version: 3.9
+            requirements-level: pypi
+            db-service: mysql5
           include:
           - db-service: postgresql10
             DB_EXTRAS: "postgresql"
 
-          - db-service: postgresql13
+          - db-service: postgresql14
             DB_EXTRAS: "postgresql"
 
           - db-service: mysql5
+            DB_EXTRAS: "mysql"
+
+          - db-service: mysql8
             DB_EXTRAS: "mysql"
 
     env:
@@ -68,7 +94,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
+          pip install -r .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt -c constraints-${{ matrix.requirements-level }}.txt
           pip install ".[$EXTRAS]"
           pip freeze
           docker --version
