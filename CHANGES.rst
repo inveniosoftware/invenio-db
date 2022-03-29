@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.0.15 (released 2022-03-30)
+
+- Adds support for SQLAlchemy 1.4 and Flask v2.1.
+
 Version 1.0.13 (released 2022-02-21)
 
 - Changes alembic migrations to run a single migration in one transaction
