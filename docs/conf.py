@@ -15,6 +15,8 @@ import sys
 
 import sphinx.environment
 
+from invenio_db import __version__
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -60,10 +62,7 @@ author = u'CERN'
 # The short X.Y version.
 
 # Get the version string. Cannot be done with import!
-g = {}
-with open(os.path.join('..', 'invenio_db', 'version.py'), 'rt') as fp:
-    exec(fp.read(), g)
-    version = g['__version__']
+version = __version__
 
 # The full version, including alpha/beta/rc tags.
 release = version
