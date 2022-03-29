@@ -8,7 +8,7 @@
 Changes
 =======
 
-Version 1.0.15 (released 2022-03-30)
+Version 1.0.14 (released 2022-03-30)
 
 - Adds support for SQLAlchemy 1.4 and Flask v2.1.
 
