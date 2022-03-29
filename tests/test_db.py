@@ -9,13 +9,12 @@
 
 """Test database integration layer."""
 
-from __future__ import absolute_import, print_function
+from unittest.mock import patch
 
 import pytest
 import sqlalchemy as sa
 from flask import Flask
 from importlib_metadata import EntryPoint
-from mock import patch
 from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_continuum import VersioningManager, remove_versioning

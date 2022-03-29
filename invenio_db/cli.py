@@ -8,8 +8,6 @@
 
 """Click command-line interface for database management."""
 
-from __future__ import absolute_import, print_function
-
 import sys
 
 import click
