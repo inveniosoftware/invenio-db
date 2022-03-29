@@ -9,10 +9,10 @@
 
 """Versioning tests for Invenio-DB"""
 
+from unittest.mock import patch
+
 import pytest
-from mock import patch
-from sqlalchemy_continuum import VersioningManager, make_versioned, \
-    remove_versioning
+from sqlalchemy_continuum import VersioningManager, remove_versioning
 from test_db import _mock_entry_points
 
 from invenio_db import InvenioDB

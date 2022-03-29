@@ -8,8 +8,6 @@
 
 """Child model."""
 
-from __future__ import absolute_import
-
 from invenio_db import db
 
 from .parent import Parent

@@ -88,8 +88,6 @@ version locations is assembled from ``invenio_db.alembic`` entry point group.
 
 """
 
-from __future__ import absolute_import, print_function
-
 from .ext import InvenioDB
 from .shared import db
 

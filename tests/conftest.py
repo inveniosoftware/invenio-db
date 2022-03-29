@@ -9,13 +9,10 @@
 
 """Pytest configuration."""
 
-from __future__ import absolute_import, print_function
-
 import os
 
 import pytest
 from flask import Flask
-from flask.cli import ScriptInfo
 
 from invenio_db.utils import alembic_test_context
 
@@ -43,9 +40,3 @@ def app():
         ALEMBIC_CONTEXT=alembic_test_context()
     )
     return app
-
-
-@pytest.fixture()
-def script_info(app):
-    """Get ScriptInfo object for testing CLI."""
-    return ScriptInfo(create_app=lambda info: app)

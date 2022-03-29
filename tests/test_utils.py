@@ -10,7 +10,6 @@
 
 import pytest
 import sqlalchemy as sa
-from mock import patch
 from sqlalchemy_continuum import remove_versioning
 from sqlalchemy_utils.types import EncryptedType
 
