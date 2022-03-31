@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.0.15 (released 2022-03-31)
+
+- Bumps min version of SQLAlchemy-Utils to v0.37 due to Flask 2.1
+  incompatibilities.
+
 Version 1.0.14 (released 2022-03-30)
 
 - Adds support for SQLAlchemy 1.4 and Flask v2.1.
