@@ -91,10 +91,10 @@ version locations is assembled from ``invenio_db.alembic`` entry point group.
 from .ext import InvenioDB
 from .shared import db
 
-__version__ = '1.0.14'
+__version__ = "1.0.14"
 
 __all__ = (
-    '__version__',
-    'db',
-    'InvenioDB',
+    "__version__",
+    "db",
+    "InvenioDB",
 )

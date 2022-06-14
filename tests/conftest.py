@@ -22,6 +22,7 @@ def db():
     """Database fixture with session sharing."""
     import invenio_db
     from invenio_db import shared
+
     db = invenio_db.db = shared.db = shared.SQLAlchemy(
         metadata=shared.MetaData(naming_convention=shared.NAMING_CONVENTION)
     )
@@ -35,8 +36,9 @@ def app():
     app.config.update(
         DB_VERSIONING=False,
         DB_VERSIONING_USER_MODEL=None,
-        SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
-                                               'sqlite:///test.db'),
-        ALEMBIC_CONTEXT=alembic_test_context()
+        SQLALCHEMY_DATABASE_URI=os.environ.get(
+            "SQLALCHEMY_DATABASE_URI", "sqlite:///test.db"
+        ),
+        ALEMBIC_CONTEXT=alembic_test_context(),
     )
     return app

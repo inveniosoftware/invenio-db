@@ -13,13 +13,15 @@ from sqlalchemy import MetaData, event, util
 from sqlalchemy.engine import Engine
 from werkzeug.local import LocalProxy
 
-NAMING_CONVENTION = util.immutabledict({
-    'ix': 'ix_%(column_0_label)s',
-    'uq': 'uq_%(table_name)s_%(column_0_name)s',
-    'ck': 'ck_%(table_name)s_%(constraint_name)s',
-    'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
-    'pk': 'pk_%(table_name)s',
-})
+NAMING_CONVENTION = util.immutabledict(
+    {
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    }
+)
 """Configuration for constraint naming conventions."""
 
 metadata = MetaData(naming_convention=NAMING_CONVENTION)
@@ -34,18 +36,18 @@ class SQLAlchemy(FlaskSQLAlchemy):
         # Don't forget to apply hacks defined on parent object.
         super(SQLAlchemy, self).apply_driver_hacks(app, sa_url, options)
 
-        if sa_url.drivername == 'sqlite':
-            connect_args = options.setdefault('connect_args', {})
+        if sa_url.drivername == "sqlite":
+            connect_args = options.setdefault("connect_args", {})
 
-            if 'isolation_level' not in connect_args:
+            if "isolation_level" not in connect_args:
                 # disable pysqlite's emitting of the BEGIN statement entirely.
                 # also stops it from emitting COMMIT before any DDL.
-                connect_args['isolation_level'] = None
+                connect_args["isolation_level"] = None
 
-            if not event.contains(Engine, 'connect', do_sqlite_connect):
-                event.listen(Engine, 'connect', do_sqlite_connect)
-            if not event.contains(Engine, 'begin', do_sqlite_begin):
-                event.listen(Engine, 'begin', do_sqlite_begin)
+            if not event.contains(Engine, "connect", do_sqlite_connect):
+                event.listen(Engine, "connect", do_sqlite_connect)
+            if not event.contains(Engine, "begin", do_sqlite_begin):
+                event.listen(Engine, "begin", do_sqlite_begin)
 
             from sqlite3 import register_adapter
 
@@ -55,7 +57,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
             register_adapter(LocalProxy, adapt_proxy)
 
-        elif sa_url.drivername == 'postgresql+psycopg2':  # pragma: no cover
+        elif sa_url.drivername == "postgresql+psycopg2":  # pragma: no cover
             from psycopg2.extensions import adapt, register_adapter
 
             def adapt_proxy(proxy):
@@ -64,7 +66,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
             register_adapter(LocalProxy, adapt_proxy)
 
-        elif sa_url.drivername == 'mysql+pymysql':  # pragma: no cover
+        elif sa_url.drivername == "mysql+pymysql":  # pragma: no cover
             from pymysql import converters
 
             def escape_local_proxy(val, mapping):
@@ -89,7 +91,7 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     """
     # Enable foreign key constraint checking
     cursor = dbapi_connection.cursor()
-    cursor.execute('PRAGMA foreign_keys=ON')
+    cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
 
@@ -100,7 +102,7 @@ def do_sqlite_begin(dbapi_connection):
     https://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
     """
     # emit our own BEGIN
-    dbapi_connection.execute('BEGIN')
+    dbapi_connection.execute("BEGIN")
 
 
 db = SQLAlchemy(metadata=metadata)

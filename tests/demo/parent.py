@@ -14,5 +14,5 @@ from invenio_db import db
 class Parent(db.Model):
     """Parent demo model."""
 
-    __tablename__ = 'parent'
+    __tablename__ = "parent"
     pk = db.Column(db.Integer, primary_key=True)

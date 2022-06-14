@@ -31,7 +31,7 @@ class MockEntryPoint(EntryPoint):
 
     def load(self):
         """Mock load entry point."""
-        if self.name == 'importfail':
+        if self.name == "importfail":
             raise ImportError()
         else:
             return import_string(self.name)
@@ -40,21 +40,19 @@ class MockEntryPoint(EntryPoint):
 def _mock_entry_points(name):
     def fn(group):
         data = {
-            'invenio_db.models': [
-                MockEntryPoint(
-                    name='demo.child', value='demo.child', group='test'),
-                MockEntryPoint(
-                    name='demo.parent', value='demo.parent', group='test')
+            "invenio_db.models": [
+                MockEntryPoint(name="demo.child", value="demo.child", group="test"),
+                MockEntryPoint(name="demo.parent", value="demo.parent", group="test"),
             ],
-            'invenio_db.models_a': [
+            "invenio_db.models_a": [
                 MockEntryPoint(
-                    name='demo.versioned_a', value='demo.versioned_a',
-                    group='test'),
+                    name="demo.versioned_a", value="demo.versioned_a", group="test"
+                ),
             ],
-            'invenio_db.models_b': [
+            "invenio_db.models_b": [
                 MockEntryPoint(
-                    name='demo.versioned_b', value='demo.versioned_b',
-                    group='test'),
+                    name="demo.versioned_b", value="demo.versioned_b", group="test"
+                ),
             ],
         }
         if group:
@@ -62,21 +60,23 @@ def _mock_entry_points(name):
         if name:
             return {name: data.get(name)}
         return data
+
     return fn
 
 
 def test_init(db, app):
     """Test extension initialization."""
+
     class Demo(db.Model):
-        __tablename__ = 'demo'
+        __tablename__ = "demo"
         pk = sa.Column(sa.Integer, primary_key=True)
 
     class Demo2(db.Model):
-        __tablename__ = 'demo2'
+        __tablename__ = "demo2"
         pk = sa.Column(sa.Integer, primary_key=True)
         fk = sa.Column(sa.Integer, sa.ForeignKey(Demo.pk))
 
-    app.config['DB_VERSIONING'] = False
+    app.config["DB_VERSIONING"] = False
     InvenioDB(app, entry_point_group=False, db=db)
     with app.app_context():
         db.create_all()
@@ -111,11 +111,11 @@ def test_alembic(db, app):
     ext = InvenioDB(app, entry_point_group=False, db=db)
 
     with app.app_context():
-        if db.engine.name == 'sqlite':
-            raise pytest.skip('Upgrades are not supported on SQLite.')
+        if db.engine.name == "sqlite":
+            raise pytest.skip("Upgrades are not supported on SQLite.")
 
         ext.alembic.upgrade()
-        ext.alembic.downgrade(target='96e796392533')
+        ext.alembic.downgrade(target="96e796392533")
 
 
 def test_naming_convention(db, app):
@@ -126,25 +126,25 @@ def test_naming_convention(db, app):
     cfg = dict(
         DB_VERSIONING=True,
         DB_VERSIONING_USER_MODEL=None,
-        SQLALCHEMY_DATABASE_URI=app.config[
-            'SQLALCHEMY_DATABASE_URI'],
+        SQLALCHEMY_DATABASE_URI=app.config["SQLALCHEMY_DATABASE_URI"],
     )
 
     with app.app_context():
-        if db.engine.name == 'sqlite':
-            raise pytest.skip('Upgrades are not supported on SQLite.')
+        if db.engine.name == "sqlite":
+            raise pytest.skip("Upgrades are not supported on SQLite.")
 
     def model_factory(base):
         """Create test models."""
+
         class Master(base):
-            __tablename__ = 'master'
+            __tablename__ = "master"
             pk = sa.Column(sa.Integer, primary_key=True)
             name = sa.Column(sa.String(100), unique=True)
             city = sa.Column(sa.String(100), index=True)
-            active = sa.Column(sa.Boolean(name='active'), server_default='1')
+            active = sa.Column(sa.Boolean(name="active"), server_default="1")
 
         class Slave(base):
-            __tablename__ = 'slave'
+            __tablename__ = "slave"
             pk = sa.Column(sa.Integer, primary_key=True)
             fk = sa.Column(sa.Integer, sa.ForeignKey(Master.pk))
             code = sa.Column(sa.Integer, index=True, unique=True)
@@ -153,66 +153,78 @@ def test_naming_convention(db, app):
             __table_args__ = (
                 sa.Index(None, source),
                 # do not add anything after
-                getattr(base, '__table_args__', {})
+                getattr(base, "__table_args__", {}),
             )
 
         return Master, Slave
 
     source_db = shared.SQLAlchemy(
-        metadata=shared.MetaData(naming_convention={
-            'ix': 'source_ix_%(table_name)s_%(column_0_label)s',
-            'uq': 'source_uq_%(table_name)s_%(column_0_name)s',
-            'ck': 'source_ck_%(table_name)s_%(constraint_name)s',
-            'fk': 'source_fk_%(table_name)s_%(column_0_name)s_'
-                  '%(referred_table_name)s',
-            'pk': 'source_pk_%(table_name)s',
-        }),
+        metadata=shared.MetaData(
+            naming_convention={
+                "ix": "source_ix_%(table_name)s_%(column_0_label)s",
+                "uq": "source_uq_%(table_name)s_%(column_0_name)s",
+                "ck": "source_ck_%(table_name)s_%(constraint_name)s",
+                "fk": "source_fk_%(table_name)s_%(column_0_name)s_"
+                "%(referred_table_name)s",
+                "pk": "source_pk_%(table_name)s",
+            }
+        ),
     )
-    source_app = Flask('source_app')
+    source_app = Flask("source_app")
     source_app.config.update(**cfg)
 
     source_models = model_factory(source_db.Model)
     source_ext = InvenioDB(
-        source_app, entry_point_group=False, db=source_db,
+        source_app,
+        entry_point_group=False,
+        db=source_db,
         versioning_manager=VersioningManager(),
     )
 
     with source_app.app_context():
         source_db.metadata.bind = source_db.engine
         source_db.create_all()
-        source_ext.alembic.stamp('dbdbc1b19cf2')
+        source_ext.alembic.stamp("dbdbc1b19cf2")
         assert not source_ext.alembic.compare_metadata()
-        source_constraints = set([
-            cns for model in source_models
-            for cns in list(model.__table__.constraints) + list(
-                model.__table__.indexes)
-        ])
+        source_constraints = set(
+            [
+                cns
+                for model in source_models
+                for cns in list(model.__table__.constraints)
+                + list(model.__table__.indexes)
+            ]
+        )
 
     remove_versioning(manager=source_ext.versioning_manager)
 
     target_db = shared.SQLAlchemy(
         metadata=shared.MetaData(naming_convention=shared.NAMING_CONVENTION)
     )
-    target_app = Flask('target_app')
+    target_app = Flask("target_app")
     target_app.config.update(**cfg)
 
     target_models = model_factory(target_db.Model)
     target_ext = InvenioDB(
-        target_app, entry_point_group=False, db=target_db,
+        target_app,
+        entry_point_group=False,
+        db=target_db,
         versioning_manager=VersioningManager(),
     )
 
     with target_app.app_context():
         target_db.metadata.bind = target_db.engine
         assert target_ext.alembic.compare_metadata()
-        target_ext.alembic.upgrade('35c1075e6360')
+        target_ext.alembic.upgrade("35c1075e6360")
         assert not target_ext.alembic.compare_metadata()
         target_db.drop_all()
-        target_constraints = set([
-            cns.name for model in source_models
-            for cns in list(model.__table__.constraints) + list(
-                model.__table__.indexes)
-        ])
+        target_constraints = set(
+            [
+                cns.name
+                for model in source_models
+                for cns in list(model.__table__.constraints)
+                + list(model.__table__.indexes)
+            ]
+        )
 
     remove_versioning(manager=target_ext.versioning_manager)
 
@@ -224,11 +236,12 @@ def test_transaction(db, app):
 
     This is necessary to make sure that pysqlite hacks are properly working.
     """
+
     class Demo(db.Model):
-        __tablename__ = 'demo'
+        __tablename__ = "demo"
         pk = sa.Column(sa.Integer, primary_key=True)
 
-    app.config['DB_VERSIONING'] = False
+    app.config["DB_VERSIONING"] = False
     InvenioDB(app, entry_point_group=False, db=db)
 
     with app.app_context():
@@ -275,8 +288,7 @@ def test_transaction(db, app):
         db.drop_all()
 
 
-@patch('importlib_metadata.entry_points',
-       _mock_entry_points('invenio_db.models'))
+@patch("importlib_metadata.entry_points", _mock_entry_points("invenio_db.models"))
 def test_entry_points(db, app):
     """Test entrypoints loading."""
     InvenioDB(app, db=db)
@@ -290,34 +302,34 @@ def test_entry_points(db, app):
         result = runner.invoke(db_cmd, [])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'])
+        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['init'])
+        result = runner.invoke(db_cmd, ["init"])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['create', '-v'])
+        result = runner.invoke(db_cmd, ["create", "-v"])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop'])
+        result = runner.invoke(db_cmd, ["drop"])
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'])
+        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['drop', 'create'])
+        result = runner.invoke(db_cmd, ["drop", "create"])
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['drop', '--yes-i-know', 'create'])
+        result = runner.invoke(db_cmd, ["drop", "--yes-i-know", "create"])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['destroy'])
+        result = runner.invoke(db_cmd, ["destroy"])
         assert result.exit_code == 1
 
-        result = runner.invoke(db_cmd, ['destroy', '--yes-i-know'])
+        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
         assert result.exit_code == 0
 
-        result = runner.invoke(db_cmd, ['init'])
+        result = runner.invoke(db_cmd, ["init"])
         assert result.exit_code == 0
 
 
@@ -328,17 +340,19 @@ def test_local_proxy(app, db):
     InvenioDB(app, db=db)
 
     with app.app_context():
-        query = db.select([
-            db.literal('hello') != db.bindparam('a'),
-            db.literal(0) <= db.bindparam('x'),
-            db.literal('2') == db.bindparam('y'),
-            db.literal(None).is_(db.bindparam('z')),
-        ])
+        query = db.select(
+            [
+                db.literal("hello") != db.bindparam("a"),
+                db.literal(0) <= db.bindparam("x"),
+                db.literal("2") == db.bindparam("y"),
+                db.literal(None).is_(db.bindparam("z")),
+            ]
+        )
         result = db.engine.execute(
             query,
-            a=LocalProxy(lambda: 'world'),
+            a=LocalProxy(lambda: "world"),
             x=LocalProxy(lambda: 1),
-            y=LocalProxy(lambda: '2'),
+            y=LocalProxy(lambda: "2"),
             z=LocalProxy(lambda: None),
         ).fetchone()
         assert result == (True, True, True, True)
@@ -350,34 +364,35 @@ def test_db_create_alembic_upgrade(app, db):
     It also checks that "alembic_version" table is processed properly
     as it is normally created by alembic and not by sqlalchemy.
     """
-    app.config['DB_VERSIONING'] = True
-    ext = InvenioDB(app, entry_point_group=None, db=db,
-                    versioning_manager=VersioningManager())
+    app.config["DB_VERSIONING"] = True
+    ext = InvenioDB(
+        app, entry_point_group=None, db=db, versioning_manager=VersioningManager()
+    )
     with app.app_context():
         try:
-            if db.engine.name == 'sqlite':
-                raise pytest.skip('Upgrades are not supported on SQLite.')
+            if db.engine.name == "sqlite":
+                raise pytest.skip("Upgrades are not supported on SQLite.")
             db.drop_all()
             runner = app.test_cli_runner()
             # Check that 'db create' creates the same schema as
             # 'alembic upgrade'.
-            result = runner.invoke(db_cmd, ['create', '-v'])
+            result = runner.invoke(db_cmd, ["create", "-v"])
             assert result.exit_code == 0
-            assert has_table(db.engine, 'transaction')
+            assert has_table(db.engine, "transaction")
             assert ext.alembic.migration_context._has_version_table()
             # Note that compare_metadata does not detect additional sequences
             # and constraints.
             assert not ext.alembic.compare_metadata()
             ext.alembic.upgrade()
-            assert has_table(db.engine, 'transaction')
+            assert has_table(db.engine, "transaction")
 
-            ext.alembic.downgrade(target='96e796392533')
-            assert inspect(db.engine).get_table_names() == ['alembic_version']
+            ext.alembic.downgrade(target="96e796392533")
+            assert inspect(db.engine).get_table_names() == ["alembic_version"]
 
             # Check that 'db drop' removes all tables, including
             # 'alembic_version'.
             ext.alembic.upgrade()
-            result = runner.invoke(db_cmd, ['drop', '-v', '--yes-i-know'])
+            result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
             assert result.exit_code == 0
             assert len(inspect(db.engine).get_table_names()) == 0
 

@@ -14,7 +14,7 @@ from invenio_db import db
 class UnversionedArticle(db.Model):
     """Unversioned test model."""
 
-    __tablename__ = 'unversioned_article_b'
+    __tablename__ = "unversioned_article_b"
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -24,7 +24,7 @@ class UnversionedArticle(db.Model):
 class VersionedArticle(db.Model):
     """Versioned test model."""
 
-    __tablename__ = 'versioned_article_b'
+    __tablename__ = "versioned_article_b"
     __versioned__ = {}
 
     id = db.Column(db.Integer, primary_key=True)
