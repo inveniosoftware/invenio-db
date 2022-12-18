@@ -50,13 +50,13 @@ def test_rebuild_encrypted_properties(db, app):
         with pytest.raises(ValueError):
             db.session.query(Demo).all()
         with pytest.raises(AttributeError):
-            rebuild_encrypted_properties(old_secret_key, Demo, ["nonexistent"])
+            rebuild_encrypted_properties(old_secret_key, Demo, ["nonexistent"], db)
         assert app.secret_key == new_secret_key
 
     with app.app_context():
         with pytest.raises(ValueError):
             db.session.query(Demo).all()
-        rebuild_encrypted_properties(old_secret_key, Demo, ["et"])
+        rebuild_encrypted_properties(old_secret_key, Demo, ["et"], db)
         d1_after = db.session.query(Demo).first()
         assert d1_after.et == "something"
 
