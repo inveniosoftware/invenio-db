@@ -8,10 +8,7 @@
 
 """Click command-line interface for database management."""
 
-import sys
-
 import click
-from click import _termui_impl
 from flask import current_app
 from flask.cli import with_appcontext
 from sqlalchemy_utils.functions import create_database, database_exists, drop_database
@@ -20,11 +17,6 @@ from werkzeug.local import LocalProxy
 from .utils import create_alembic_version_table, drop_alembic_version_table
 
 _db = LocalProxy(lambda: current_app.extensions["sqlalchemy"].db)
-
-# Fix Python 3 compatibility issue in click
-if sys.version_info > (3,):
-    _termui_impl.long = int  # pragma: no cover
-
 
 def abort_if_false(ctx, param, value):
     """Abort command is value is False."""
