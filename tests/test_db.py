@@ -335,8 +335,6 @@ def test_entry_points(db, app):
 
 def test_local_proxy(app, db):
     """Test local proxy filter."""
-    from werkzeug.local import LocalProxy
-
     InvenioDB(app, db=db)
 
     with app.app_context():
@@ -350,10 +348,10 @@ def test_local_proxy(app, db):
         )
         result = db.engine.execute(
             query,
-            a=LocalProxy(lambda: "world"),
-            x=LocalProxy(lambda: 1),
-            y=LocalProxy(lambda: "2"),
-            z=LocalProxy(lambda: None),
+            a="world",
+            x=1,
+            y="2",
+            z=None,
         ).fetchone()
         assert result == (True, True, True, True)
 
