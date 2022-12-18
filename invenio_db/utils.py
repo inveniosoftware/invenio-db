@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2017-2018 CERN.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -13,10 +14,10 @@ from flask import current_app
 from sqlalchemy import inspect
 
 from .proxies import current_db
-from .shared import db
+from .shared import db as _db
 
 
-def rebuild_encrypted_properties(old_key, model, properties):
+def rebuild_encrypted_properties(old_key, model, properties, db=_db):
     """Rebuild model's EncryptedType properties when the SECRET_KEY is changed.
 
     :param old_key: old SECRET_KEY.
