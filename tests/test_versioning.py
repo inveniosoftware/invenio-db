@@ -33,7 +33,6 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
     app.config["DB_VERSIONING"] = versioning
 
     class EarlyClass(db.Model):
-
         __versioned__ = {}
 
         pk = db.Column(db.Integer, primary_key=True)
