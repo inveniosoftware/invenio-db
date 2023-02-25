@@ -10,7 +10,6 @@
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy import String
 from sqlalchemy_continuum import remove_versioning
 from sqlalchemy_utils.types import StringEncryptedType
 
@@ -34,9 +33,7 @@ def test_rebuild_encrypted_properties(db, app):
         __tablename__ = "demo"
         pk = db.Column(sa.Integer, primary_key=True)
         et = db.Column(
-            StringEncryptedType(
-                String, length=255, type_in=db.Unicode, key=_secret_key
-            ),
+            StringEncryptedType(length=255, type_in=db.Unicode, key=_secret_key),
             nullable=False,
         )
 

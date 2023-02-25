@@ -13,10 +13,10 @@ from flask import current_app
 from sqlalchemy import inspect
 
 from .proxies import current_db
-from .shared import db
+from .shared import db as _db
 
 
-def rebuild_encrypted_properties(old_key, model, properties, db=db):
+def rebuild_encrypted_properties(old_key, model, properties, db=_db):
     """Rebuild model's EncryptedType properties when the SECRET_KEY is changed.
 
     :param old_key: old SECRET_KEY.
