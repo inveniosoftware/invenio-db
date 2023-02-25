@@ -11,7 +11,7 @@
 import pytest
 import sqlalchemy as sa
 from sqlalchemy_continuum import remove_versioning
-from sqlalchemy_utils.types import EncryptedType
+from sqlalchemy_utils.types import StringEncryptedType
 
 from invenio_db import InvenioDB
 from invenio_db.utils import (
@@ -33,7 +33,8 @@ def test_rebuild_encrypted_properties(db, app):
         __tablename__ = "demo"
         pk = db.Column(sa.Integer, primary_key=True)
         et = db.Column(
-            EncryptedType(type_in=db.Unicode, key=_secret_key), nullable=False
+            StringEncryptedType(type_in=db.Unicode, key=_secret_key),
+            nullable=False,
         )
 
     InvenioDB(app, entry_point_group=False, db=db)
