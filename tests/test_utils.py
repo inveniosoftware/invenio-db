@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2017-2018 CERN.
+# Copyright (C) 2023 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -33,7 +34,7 @@ def test_rebuild_encrypted_properties(db, app):
         __tablename__ = "demo"
         pk = db.Column(sa.Integer, primary_key=True)
         et = db.Column(
-            StringEncryptedType(type_in=db.Unicode, key=_secret_key),
+            StringEncryptedType(length=255, type_in=db.Unicode, key=_secret_key),
             nullable=False,
         )
 
