@@ -12,4 +12,4 @@
 from flask import current_app
 from werkzeug.local import LocalProxy
 
-current_db = LocalProxy(lambda: current_app.extensions["sqlalchemy"])
+current_sqlalchemy = LocalProxy(lambda: current_app.extensions["sqlalchemy"])

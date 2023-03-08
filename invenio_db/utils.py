@@ -12,7 +12,7 @@
 from flask import current_app
 from sqlalchemy import inspect
 
-from .proxies import current_db
+from .proxies import current_sqlalchemy
 from .shared import db as _db
 
 
@@ -71,11 +71,13 @@ def create_alembic_version_table():
 
 def drop_alembic_version_table():
     """Drop alembic_version table."""
-    if has_table(current_db.engine, "alembic_version"):
-        alembic_version = current_db.Table(
-            "alembic_version", current_db.metadata, autoload_with=current_db.engine
+    if has_table(current_sqlalchemy.engine, "alembic_version"):
+        alembic_version = current_sqlalchemy.Table(
+            "alembic_version",
+            current_sqlalchemy.metadata,
+            autoload_with=current_sqlalchemy.engine,
         )
-        alembic_version.drop(bind=current_db.engine)
+        alembic_version.drop(bind=current_sqlalchemy.engine)
 
 
 def versioning_model_classname(manager, model):
