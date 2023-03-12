@@ -14,54 +14,15 @@ from unittest.mock import patch
 import pytest
 import sqlalchemy as sa
 from flask import Flask
-from importlib_metadata import EntryPoint
+from mocks import _mock_entry_points
 from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_continuum import VersioningManager, remove_versioning
 from sqlalchemy_utils.functions import create_database, drop_database
-from werkzeug.utils import import_string
 
 from invenio_db import InvenioDB, shared
 from invenio_db.cli import db as db_cmd
 from invenio_db.utils import drop_alembic_version_table, has_table
-
-
-class MockEntryPoint(EntryPoint):
-    """Mocking of entrypoint."""
-
-    def load(self):
-        """Mock load entry point."""
-        if self.name == "importfail":
-            raise ImportError()
-        else:
-            return import_string(self.name)
-
-
-def _mock_entry_points(name):
-    def fn(group):
-        data = {
-            "invenio_db.models": [
-                MockEntryPoint(name="demo.child", value="demo.child", group="test"),
-                MockEntryPoint(name="demo.parent", value="demo.parent", group="test"),
-            ],
-            "invenio_db.models_a": [
-                MockEntryPoint(
-                    name="demo.versioned_a", value="demo.versioned_a", group="test"
-                ),
-            ],
-            "invenio_db.models_b": [
-                MockEntryPoint(
-                    name="demo.versioned_b", value="demo.versioned_b", group="test"
-                ),
-            ],
-        }
-        if group:
-            return data.get(group, [])
-        if name:
-            return {name: data.get(name)}
-        return data
-
-    return fn
 
 
 def test_init(db, app):
