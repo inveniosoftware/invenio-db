@@ -12,8 +12,8 @@
 from unittest.mock import patch
 
 import pytest
+from mocks import _mock_entry_points
 from sqlalchemy_continuum import VersioningManager, remove_versioning
-from test_db import _mock_entry_points
 
 from invenio_db import InvenioDB
 
