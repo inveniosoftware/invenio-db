@@ -8,11 +8,6 @@
 Changes
 =======
 
-Version 1.0.15 (released 2023-05-17)
-
-- upper pin alembic dependency
-- force installing asyncio
-
 Version 1.1.0 (released 2023-04-06)
 
 - yanked, because of an incompatibility with Flask-SQLAlchemy v3.
