@@ -8,12 +8,22 @@
 
 """Click command-line interface for database management."""
 
+import sys
+
 import click
+from click import _termui_impl
+from flask import current_app
 from flask.cli import with_appcontext
 from sqlalchemy_utils.functions import create_database, database_exists, drop_database
+from werkzeug.local import LocalProxy
 
-from .proxies import current_sqlalchemy
 from .utils import create_alembic_version_table, drop_alembic_version_table
+
+_db = LocalProxy(lambda: current_app.extensions["sqlalchemy"].db)
+
+# Fix Python 3 compatibility issue in click
+if sys.version_info > (3,):
+    _termui_impl.long = int  # pragma: no cover
 
 
 def abort_if_false(ctx, param, value):
@@ -45,11 +55,11 @@ def db():
 def create(verbose):
     """Create tables."""
     click.secho("Creating all tables!", fg="yellow", bold=True)
-    with click.progressbar(current_sqlalchemy.metadata.sorted_tables) as bar:
+    with click.progressbar(_db.metadata.sorted_tables) as bar:
         for table in bar:
             if verbose:
                 click.echo(" Creating table {0}".format(table))
-            table.create(bind=current_sqlalchemy.engine, checkfirst=True)
+            table.create(bind=_db.engine, checkfirst=True)
     create_alembic_version_table()
     click.secho("Created all tables!", fg="green")
 
@@ -67,11 +77,11 @@ def create(verbose):
 def drop(verbose):
     """Drop tables."""
     click.secho("Dropping all tables!", fg="red", bold=True)
-    with click.progressbar(reversed(current_sqlalchemy.metadata.sorted_tables)) as bar:
+    with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
         for table in bar:
             if verbose:
                 click.echo(" Dropping table {0}".format(table))
-            table.drop(bind=current_sqlalchemy.engine, checkfirst=True)
+            table.drop(bind=_db.engine, checkfirst=True)
         drop_alembic_version_table()
     click.secho("Dropped all tables!", fg="green")
 
@@ -80,9 +90,9 @@ def drop(verbose):
 @with_appcontext
 def init():
     """Create database."""
-    displayed_database = render_url(current_sqlalchemy.engine.url)
+    displayed_database = render_url(_db.engine.url)
     click.secho(f"Creating database {displayed_database}", fg="green")
-    database_url = str(current_sqlalchemy.engine.url)
+    database_url = str(_db.engine.url)
     if not database_exists(database_url):
         create_database(database_url)
 
@@ -98,12 +108,12 @@ def init():
 @with_appcontext
 def destroy():
     """Drop database."""
-    displayed_database = render_url(current_sqlalchemy.engine.url)
+    displayed_database = render_url(_db.engine.url)
     click.secho(f"Destroying database {displayed_database}", fg="red", bold=True)
-    if current_sqlalchemy.engine.name == "sqlite":
+    if _db.engine.name == "sqlite":
         try:
-            drop_database(current_sqlalchemy.engine.url)
-        except FileNotFoundError:
+            drop_database(_db.engine.url)
+        except FileNotFoundError as e:
             click.secho("Sqlite database has not been initialised", fg="red", bold=True)
     else:
-        drop_database(current_sqlalchemy.engine.url)
+        drop_database(_db.engine.url)
