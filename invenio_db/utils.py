@@ -105,9 +105,12 @@ def versioning_models_registered(manager, base):
 
 
 def alembic_test_context():
-    """Alembic test context."""
+    """Alembic test context.
+
     # skip index from alembic migrations until sqlalchemy 2.0
     # https://github.com/sqlalchemy/sqlalchemy/discussions/7597
+    """
+
     def include_object(object, name, type_, reflected, compare_to):
         if name == "ix_uq_partial_files_object_is_head":
             return False
