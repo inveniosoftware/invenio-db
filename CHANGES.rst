@@ -8,6 +8,17 @@
 Changes
 =======
 
+Version 1.1.1 (released 2023-05-22)
+
+- upgrade minimal python version
+- code formatting
+- force installing greenlet dependency
+- upper pin alembic dependency version
+
+Version 1.0.15 (released 2023-05-17)
+
+- yanked due to mixed commits in the release
+
 Version 1.1.0 (released 2023-04-06)
 
 - yanked, because of an incompatibility with Flask-SQLAlchemy v3.
