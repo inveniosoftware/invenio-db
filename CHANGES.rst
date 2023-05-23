@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.1.2 (released 2023-05-23)
+
+- fix db engine dependencies
+
 Version 1.1.1 (released 2023-05-22)
 
 - upgrade minimal python version
