@@ -60,6 +60,7 @@ class InvenioDB(object):
             "ALEMBIC_CONTEXT",
             {
                 "transaction_per_migration": True,
+                "compare_type": True,  # Allows to detect change of column type, accuracy depends on backend
             },
         )
 
