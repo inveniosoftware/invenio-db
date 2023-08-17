@@ -11,6 +11,7 @@
 import sqlalchemy as sa
 from alembic import op, util
 from sqlalchemy import inspect
+from sqlalchemy.sql import text
 
 # revision identifiers, used by Alembic.
 revision = "35c1075e6360"
@@ -32,7 +33,7 @@ NAMING_CONVENTION = sa.util.immutabledict(
 
 def upgrade():
     """Upgrade database."""
-    op.execute("COMMIT")  # See https://bitbucket.org/zzzeek/alembic/issue/123
+    op.execute(text("COMMIT"))  # See https://bitbucket.org/zzzeek/alembic/issue/123
     ctx = op.get_context()
     metadata = ctx.opts["target_metadata"]
     metadata.naming_convention = NAMING_CONVENTION
