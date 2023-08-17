@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.1.3 (released 2023-08-17)
+
+- alembic: fix sqlalchemy op.execute statements due to latest sqlalchamy-continuum
+
 Version 1.1.2 (released 2023-05-23)
 
 - fix db engine dependencies
