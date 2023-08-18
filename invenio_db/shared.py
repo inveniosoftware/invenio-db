@@ -10,6 +10,7 @@
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from sqlalchemy import MetaData, event, util
+from sqlalchemy.sql import text
 from sqlalchemy.engine import Engine
 from werkzeug.local import LocalProxy
 
@@ -91,7 +92,7 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     """
     # Enable foreign key constraint checking
     cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute(text("PRAGMA foreign_keys=ON"))
     cursor.close()
 
 
@@ -102,7 +103,7 @@ def do_sqlite_begin(dbapi_connection):
     https://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
     """
     # emit our own BEGIN
-    dbapi_connection.execute("BEGIN")
+    dbapi_connection.execute(text("BEGIN"))
 
 
 db = SQLAlchemy(metadata=metadata)
