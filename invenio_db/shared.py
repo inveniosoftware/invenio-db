@@ -10,8 +10,8 @@
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from sqlalchemy import MetaData, event, util
-from sqlalchemy.sql import text
 from sqlalchemy.engine import Engine
+from sqlalchemy.sql import text
 from werkzeug.local import LocalProxy
 
 NAMING_CONVENTION = util.immutabledict(
