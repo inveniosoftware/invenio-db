@@ -92,7 +92,7 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     """
     # Enable foreign key constraint checking
     cursor = dbapi_connection.cursor()
-    cursor.execute(text("PRAGMA foreign_keys=ON"))
+    cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
 
