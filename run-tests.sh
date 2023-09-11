@@ -23,7 +23,11 @@ trap cleanup EXIT
 
 python -m check_manifest
 python -m sphinx.cmd.build -qnNW docs docs/_build/html
-eval "$(docker-services-cli up --db ${DB:-postgresql} --env)"
+
+# run docker services only when not SQLite
+if [[ "${DB:-}" != "sqlite" ]]; then
+    eval "$(docker-services-cli up --db ${DB:-postgresql} --env)"
+fi
 python -m pytest
 tests_exit_code=$?
 exit "$tests_exit_code"

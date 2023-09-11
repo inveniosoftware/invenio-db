@@ -31,7 +31,7 @@ jobs:
       matrix:
           python-version: [3.7, 3.8, 3.9]
           requirements-level: [pypi]
-          db-service: [postgresql10, postgresql14, mysql5, mysql8]
+          db-service: [postgresql11, postgresql14, mysql8, sqlite]
           exclude:
           - python-version: 3.7
             db-service: postgresql14
@@ -42,33 +42,33 @@ jobs:
             requirements-level: pypi
 
           - python-version: 3.8
-            db-service: postgresql10
+            db-service: postgresql11
 
           - python-version: 3.9
-            db-service: postgresql10
+            db-service: postgresql11
+
+          - python-version: 3.7
+            db-service: sqlite
 
           - python-version: 3.8
-            db-service: mysql5
-
-          - python-version: 3.9
-            db-service: mysql5
+            db-service: sqlite
 
           include:
-          - db-service: postgresql10
-            DB_EXTRAS: "postgresql"
+          - db-service: postgresql11
+            EXTRAS: "tests,postgresql"
 
           - db-service: postgresql14
-            DB_EXTRAS: "postgresql"
-
-          - db-service: mysql5
-            DB_EXTRAS: "mysql"
+            EXTRAS: "tests,postgresql"
 
           - db-service: mysql8
-            DB_EXTRAS: "mysql"
+            EXTRAS: "tests,mysql"
+
+          - db-service: sqlite
+            EXTRAS: "tests"
 
     env:
       DB: ${{ matrix.db-service }}
-      EXTRAS: tests,${{ matrix.DB_EXTRAS }}
+      EXTRAS: ${{ matrix.EXTRAS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
