@@ -8,13 +8,17 @@
 Changes
 =======
 
+Version 1.1.5 (released 2023-09-11)
+
+- shared: removed 'text()' from cursor.execute for SQLite
+
 Version 1.1.4 (released 2023-08-18)
 
-- shared: fix sqlalchemy op.execute statements due to latest sqlalchamy-continuum
+- shared: fix sqlalchemy op.execute statements due to latest sqlalchemy-continuum
 
 Version 1.1.3 (released 2023-08-17)
 
-- alembic: fix sqlalchemy op.execute statements due to latest sqlalchamy-continuum
+- alembic: fix sqlalchemy op.execute statements due to latest sqlalchemy-continuum
 
 Version 1.1.2 (released 2023-05-23)
 
