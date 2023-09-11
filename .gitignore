@@ -61,7 +61,7 @@ docs/.doctrees/
 target/
 
 # Tests
-tests/test.db
+test.db
 
 # Vim swapfiles
 .*.sw?
