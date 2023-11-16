@@ -363,6 +363,6 @@ def test_db_create_alembic_upgrade(app, db):
             assert len(inspect(db.engine).get_table_names()) == 0
 
         finally:
-            drop_database(str(db.engine.url))
+            drop_database(str(db.engine.url.render_as_string(hide_password=False)))
             remove_versioning(manager=ext.versioning_manager)
-            create_database(str(db.engine.url))
+            create_database(str(db.engine.url.render_as_string(hide_password=False)))
