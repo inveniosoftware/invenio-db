@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -45,7 +46,6 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
         db.drop_all()
         db.create_all()
 
-        before = len(db.metadata.tables)
         ec = EarlyClass()
         ec.pk = 1
         db.session.add(ec)
