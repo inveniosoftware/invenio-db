@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2020-2024 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -11,65 +11,25 @@ name: CI
 
 on:
   push:
-    branches: master
+    branches:
+      - master
   pull_request:
-    branches: master
+    branches:
+      - master
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '0 3 * * 6'
+    - cron:  "0 3 * * 6"
   workflow_dispatch:
     inputs:
       reason:
-        description: 'Reason'
+        description: "Reason"
         required: false
-        default: 'Manual trigger'
-      
+        default: "Manual trigger"
+
 jobs:
   Tests:
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.9, 3.12]
-        db-service: [postgresql11, postgresql14, mysql8, sqlite]
+    uses: inveniosoftware/workflows/.github/workflows/tests-python.yml@master
+    with:
+      extras: "tests,postgresql"
+      search-service: '[""]'
 
-        include:
-          - db-service: postgresql11
-            EXTRAS: "tests,postgresql"
-
-          - db-service: postgresql14
-            EXTRAS: "tests,postgresql"
-
-          - db-service: mysql8
-            EXTRAS: "tests,mysql"
-
-          - db-service: sqlite
-            EXTRAS: "tests"
-
-    env:
-      DB: ${{ matrix.db-service }}
-      EXTRAS: ${{ matrix.EXTRAS }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: setup.cfg
-
-      - name: Pre-install
-        uses: ./.github/actions/pre-install
-        if: ${{ hashFiles('.github/actions/pre-install/action.yml') != '' }}
-
-      - name: Install dependencies
-        run: |
-          pip install ".[$EXTRAS]"
-          pip freeze
-          docker version
-
-      - name: Run tests
-        run: ./run-tests.sh
