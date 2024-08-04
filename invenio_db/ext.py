@@ -36,19 +36,17 @@ class InvenioDB(object):
         """Initialize application object."""
         self.init_db(app, **kwargs)
 
-        script_location = str(importlib_resources.files("invenio_db") / "alembic")
+        def pathify(base_entry):
+            return str(
+                importlib_resources.files(base_entry.module)
+                / os.path.join(base_entry.attr)
+            )
+
+        entry_points = importlib_metadata.entry_points(group="invenio_db.alembic")
         version_locations = [
-            (
-                base_entry.name,
-                str(
-                    importlib_resources.files(base_entry.module)
-                    / os.path.join(base_entry.attr)
-                ),
-            )
-            for base_entry in importlib_metadata.entry_points(
-                group="invenio_db.alembic"
-            )
+            (base_entry.name, pathify(base_entry)) for base_entry in entry_points
         ]
+        script_location = str(importlib_resources.files("invenio_db") / "alembic")
         app.config.setdefault(
             "ALEMBIC",
             {

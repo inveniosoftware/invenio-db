@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -20,8 +21,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy_continuum import VersioningManager, remove_versioning
 from sqlalchemy_utils.functions import create_database, drop_database
 
-from invenio_db import InvenioDB, shared
+from invenio_db import InvenioDB
 from invenio_db.cli import db as db_cmd
+from invenio_db.shared import NAMING_CONVENTION, MetaData, SQLAlchemy
 from invenio_db.utils import drop_alembic_version_table, has_table
 
 
@@ -81,9 +83,8 @@ def test_alembic(db, app):
 
 def test_naming_convention(db, app):
     """Test naming convention."""
-    from sqlalchemy_continuum import remove_versioning
 
-    ext = InvenioDB(app, entry_point_group=False, db=db)
+    InvenioDB(app, entry_point_group=False, db=db)
     cfg = dict(
         DB_VERSIONING=True,
         DB_VERSIONING_USER_MODEL=None,
@@ -119,8 +120,8 @@ def test_naming_convention(db, app):
 
         return Master, Slave
 
-    source_db = shared.SQLAlchemy(
-        metadata=shared.MetaData(
+    source_db = SQLAlchemy(
+        metadata=MetaData(
             naming_convention={
                 "ix": "source_ix_%(table_name)s_%(column_0_label)s",
                 "uq": "source_uq_%(table_name)s_%(column_0_name)s",
@@ -158,9 +159,7 @@ def test_naming_convention(db, app):
 
     remove_versioning(manager=source_ext.versioning_manager)
 
-    target_db = shared.SQLAlchemy(
-        metadata=shared.MetaData(naming_convention=shared.NAMING_CONVENTION)
-    )
+    target_db = SQLAlchemy(metadata=MetaData(naming_convention=NAMING_CONVENTION))
     target_app = Flask("target_app")
     target_app.config.update(**cfg)
 
@@ -181,7 +180,7 @@ def test_naming_convention(db, app):
         target_constraints = set(
             [
                 cns.name
-                for model in source_models
+                for model in target_models
                 for cns in list(model.__table__.constraints)
                 + list(model.__table__.indexes)
             ]
@@ -263,6 +262,9 @@ def test_entry_points(db, app):
         result = runner.invoke(db_cmd, [])
         assert result.exit_code == 0
 
+        result = runner.invoke(db_cmd, ["init"])
+        assert result.exit_code == 0
+
         result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
         assert result.exit_code == 0
 
@@ -270,6 +272,21 @@ def test_entry_points(db, app):
         assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["create", "-v"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["init"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["create", "-v"])
+        assert result.exit_code == 1
+
+        result = runner.invoke(db_cmd, ["create", "-v"])
+        assert result.exit_code == 1
+
+        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
         assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["drop"])
@@ -282,15 +299,33 @@ def test_entry_points(db, app):
         assert result.exit_code == 1
 
         result = runner.invoke(db_cmd, ["drop", "--yes-i-know", "create"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["destroy"])
         assert result.exit_code == 1
 
         result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
         assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["init"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["init"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["init"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
+        assert result.exit_code == 1
+
+        result = runner.invoke(db_cmd, ["create", "-v"])
+        assert result.exit_code == 1
+
+        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
         assert result.exit_code == 0
 
 
@@ -339,11 +374,13 @@ def test_db_create_alembic_upgrade(app, db):
             assert result.exit_code == 0
             assert has_table(db.engine, "transaction")
             assert ext.alembic.migration_context._has_version_table()
+
             # Note that compare_metadata does not detect additional sequences
             # and constraints.
             # TODO fix failing test on mysql
             if db.engine.name != "mysql":
                 assert not ext.alembic.compare_metadata()
+
             ext.alembic.upgrade()
             assert has_table(db.engine, "transaction")
 
