@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2020 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2024 CERN.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -23,37 +22,17 @@ on:
         description: 'Reason'
         required: false
         default: 'Manual trigger'
-
+      
 jobs:
   Tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
-          python-version: [3.7, 3.8, 3.9]
-          requirements-level: [pypi]
-          db-service: [postgresql11, postgresql14, mysql8, sqlite]
-          exclude:
-          - python-version: 3.7
-            db-service: postgresql14
-            requirements-level: pypi
+        python-version: [3.9, 3.12]
+        db-service: [postgresql11, postgresql14, mysql8, sqlite]
 
-          - python-version: 3.7
-            db-service: mysql8
-            requirements-level: pypi
-
-          - python-version: 3.8
-            db-service: postgresql11
-
-          - python-version: 3.9
-            db-service: postgresql11
-
-          - python-version: 3.7
-            db-service: sqlite
-
-          - python-version: 3.8
-            db-service: sqlite
-
-          include:
+        include:
           - db-service: postgresql11
             EXTRAS: "tests,postgresql"
 
@@ -69,34 +48,27 @@ jobs:
     env:
       DB: ${{ matrix.db-service }}
       EXTRAS: ${{ matrix.EXTRAS }}
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.cfg
 
-      - name: Generate dependencies
-        run: |
-          pip install wheel requirements-builder
-          requirements-builder -e "$EXTRAS" --level=${{ matrix.requirements-level }} setup.py > .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
-
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt') }}
+      - name: Pre-install
+        uses: ./.github/actions/pre-install
+        if: ${{ hashFiles('.github/actions/pre-install/action.yml') != '' }}
 
       - name: Install dependencies
         run: |
-          pip install -r .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt -c constraints-${{ matrix.requirements-level }}.txt
           pip install ".[$EXTRAS]"
           pip freeze
-          docker --version
-          docker-compose --version
+          docker version
 
       - name: Run tests
-        run: |
-          ./run-tests.sh
+        run: ./run-tests.sh

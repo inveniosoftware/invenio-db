@@ -40,16 +40,6 @@ should be changed to something like:
         # ...
         # Do not use `db.session.commit()` in service.
 
-Any private method that need to run operations after the database transaction
-commit should take the unit of work as input:
-
-.. code-block:: python
-
-    def _send_a_task(uow, ...):
-        # Run a celery task after the database transaction commit.
-        uow.register(TaskOp(my_celery_task, myarg, ... ))
-
-
 **When not to use?**
 
 If you're not changing the database state there's no need to use the unit of
