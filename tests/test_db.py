@@ -62,8 +62,8 @@ def test_init(db, app):
         db.session.rollback()
 
     with app.app_context():
-        Demo2.query.delete()
-        Demo.query.delete()
+        db.session.query(Demo2).delete()
+        db.session.query(Demo).delete()
         db.session.commit()
 
         db.drop_all()
@@ -366,6 +366,7 @@ def test_db_create_alembic_upgrade(app, db):
         try:
             if db.engine.name == "sqlite":
                 raise pytest.skip("Upgrades are not supported on SQLite.")
+
             db.drop_all()
             runner = app.test_cli_runner()
             # Check that 'db create' creates the same schema as

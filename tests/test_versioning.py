@@ -33,6 +33,8 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
     """Test SQLAlchemy-Continuum table loading."""
     app.config["DB_VERSIONING"] = versioning
 
+    # this class has to be defined here, because the the db has to be the db
+    # from the fixture. using it "from invenio_db import db" is not working
     class EarlyClass(db.Model):
         __versioned__ = {}
 
