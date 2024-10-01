@@ -1,12 +1,17 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2015-2023 CERN.
+    Copyright (C) 2015-2024 CERN.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
 Changes
 =======
+
+Version 1.2.0 (released 2024-10-01)
+
+- uow: moved Unit of Work pattern and non-records Operations from
+  invenio-records-resources to invenio-db package
 
 Version 1.1.5 (released 2023-09-11)
 
