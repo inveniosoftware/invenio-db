@@ -16,7 +16,7 @@ task execution.
 Note, this is NOT a clean implementation of the UoW design pattern. The
 main purpose of the Unit of Work in Invenio is to coordinate when the database
 transaction commit is called, and ensure tasks that have to run after the
-transcation are executed (such as indexing and running celery tasks).
+transaction are executed (such as indexing and running celery tasks).
 
 This ensures that we can group multiple service calls into a single database
 transaction and perform the necessary indexing/task execution afterwards.
@@ -30,7 +30,7 @@ should be changed to something like:
 
 .. code-block:: python
 
-    from invenio_db.services.uow import \
+    from invenio_db.uow import \
         ModelCommit, unit_of_work,
 
     @unit_of_work()
@@ -55,7 +55,7 @@ the following pattern:
 
 .. code-block:: python
 
-    from invenio_db.services.uow import UnitOfWork
+    from invenio_db.uow import UnitOfWork
 
     with UnitOfWork() as uow:
         # Be careful to always inject "uow" to the service. If not, the
@@ -78,7 +78,7 @@ class and implementing the desired methods:
 
 .. code-block:: python
 
-    from invenio_db.services.uow import Operation
+    from invenio_db.uow import Operation
 
     class BulkIndexOp(Operation):
         def on_commit(self, uow):
@@ -87,7 +87,7 @@ class and implementing the desired methods:
 
 from functools import wraps
 
-from ..shared import db
+from .shared import db
 
 
 #
