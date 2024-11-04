@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2017-2018 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -11,14 +12,12 @@
 
 from flask import current_app
 from sqlalchemy import inspect
-from werkzeug.local import LocalProxy
 
-from .shared import db
-
-_db = LocalProxy(lambda: current_app.extensions["sqlalchemy"].db)
+from .proxies import current_sqlalchemy
+from .shared import db as _db
 
 
-def rebuild_encrypted_properties(old_key, model, properties):
+def rebuild_encrypted_properties(old_key, model, properties, db=_db):
     """Rebuild model's EncryptedType properties when the SECRET_KEY is changed.
 
     :param old_key: old SECRET_KEY.
@@ -73,11 +72,13 @@ def create_alembic_version_table():
 
 def drop_alembic_version_table():
     """Drop alembic_version table."""
-    if has_table(_db.engine, "alembic_version"):
-        alembic_version = _db.Table(
-            "alembic_version", _db.metadata, autoload_with=_db.engine
+    if has_table(current_sqlalchemy.engine, "alembic_version"):
+        alembic_version = current_sqlalchemy.Table(
+            "alembic_version",
+            current_sqlalchemy.metadata,
+            autoload_with=current_sqlalchemy.engine,
         )
-        alembic_version.drop(bind=_db.engine)
+        alembic_version.drop(bind=current_sqlalchemy.engine)
 
 
 def versioning_model_classname(manager, model):

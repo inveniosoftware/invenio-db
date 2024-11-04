@@ -3,7 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -36,19 +36,17 @@ class InvenioDB(object):
         """Initialize application object."""
         self.init_db(app, **kwargs)
 
-        script_location = str(importlib_resources.files("invenio_db") / "alembic")
+        def pathify(base_entry):
+            return str(
+                importlib_resources.files(base_entry.module)
+                / os.path.join(base_entry.attr)
+            )
+
+        entry_points = importlib_metadata.entry_points(group="invenio_db.alembic")
         version_locations = [
-            (
-                base_entry.name,
-                str(
-                    importlib_resources.files(base_entry.module)
-                    / os.path.join(base_entry.attr)
-                ),
-            )
-            for base_entry in importlib_metadata.entry_points(
-                group="invenio_db.alembic"
-            )
+            (base_entry.name, pathify(base_entry)) for base_entry in entry_points
         ]
+        script_location = str(importlib_resources.files("invenio_db") / "alembic")
         app.config.setdefault(
             "ALEMBIC",
             {
@@ -93,6 +91,7 @@ class InvenioDB(object):
 
         # All models should be loaded by now.
         sa.orm.configure_mappers()
+
         # Ensure that versioning classes have been built.
         if app.config["DB_VERSIONING"]:
             manager = self.versioning_manager

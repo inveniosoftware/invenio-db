@@ -17,8 +17,8 @@ from flask import Flask
 from invenio_db.utils import alembic_test_context
 
 
-@pytest.fixture()
-def db():
+@pytest.fixture(name="db")
+def fixture_db():
     """Database fixture with session sharing."""
     import invenio_db
     from invenio_db import shared

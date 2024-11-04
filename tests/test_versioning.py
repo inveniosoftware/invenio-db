@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
+# Copyright (C) 2023-2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -12,8 +13,8 @@
 from unittest.mock import patch
 
 import pytest
+from mocks import _mock_entry_points
 from sqlalchemy_continuum import VersioningManager, remove_versioning
-from test_db import _mock_entry_points
 
 from invenio_db import InvenioDB
 
@@ -32,6 +33,8 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
     """Test SQLAlchemy-Continuum table loading."""
     app.config["DB_VERSIONING"] = versioning
 
+    # this class has to be defined here, because the the db has to be the db
+    # from the fixture. using it "from invenio_db import db" is not working
     class EarlyClass(db.Model):
         __versioned__ = {}
 
@@ -45,7 +48,6 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
         db.drop_all()
         db.create_all()
 
-        before = len(db.metadata.tables)
         ec = EarlyClass()
         ec.pk = 1
         db.session.add(ec)
@@ -62,6 +64,9 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
 @patch("importlib_metadata.entry_points", _mock_entry_points("invenio_db.models_b"))
 def test_versioning(db, app):
     """Test SQLAlchemy-Continuum enabled versioning."""
+    # they have to imported inside of the tests, otherwise it doesn't work
+    from demo.versioned_b import UnversionedArticle, VersionedArticle
+
     app.config["DB_VERSIONING"] = True
 
     idb = InvenioDB(
@@ -75,8 +80,6 @@ def test_versioning(db, app):
         assert 4 == len(db.metadata.tables)
 
         db.create_all()
-
-        from demo.versioned_b import UnversionedArticle, VersionedArticle
 
         original_name = "original_name"
 

@@ -2,28 +2,19 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Click command-line interface for database management."""
 
-import sys
-
 import click
-from click import _termui_impl
-from flask import current_app
 from flask.cli import with_appcontext
 from sqlalchemy_utils.functions import create_database, database_exists, drop_database
-from werkzeug.local import LocalProxy
 
+from .proxies import current_sqlalchemy
 from .utils import create_alembic_version_table, drop_alembic_version_table
-
-_db = LocalProxy(lambda: current_app.extensions["sqlalchemy"].db)
-
-# Fix Python 3 compatibility issue in click
-if sys.version_info > (3,):
-    _termui_impl.long = int  # pragma: no cover
 
 
 def abort_if_false(ctx, param, value):
@@ -34,11 +25,7 @@ def abort_if_false(ctx, param, value):
 
 def render_url(url):
     """Render the URL for CLI output."""
-    try:
-        return url.render_as_string(hide_password=True)
-    except AttributeError:
-        # SQLAlchemy <1.4
-        return url.__to_string__(hide_password=True)
+    return url.render_as_string(hide_password=True)
 
 
 #
@@ -55,11 +42,11 @@ def db():
 def create(verbose):
     """Create tables."""
     click.secho("Creating all tables!", fg="yellow", bold=True)
-    with click.progressbar(_db.metadata.sorted_tables) as bar:
+    with click.progressbar(current_sqlalchemy.metadata.sorted_tables) as bar:
         for table in bar:
             if verbose:
                 click.echo(" Creating table {0}".format(table))
-            table.create(bind=_db.engine, checkfirst=True)
+            table.create(bind=current_sqlalchemy.engine, checkfirst=True)
     create_alembic_version_table()
     click.secho("Created all tables!", fg="green")
 
@@ -77,11 +64,11 @@ def create(verbose):
 def drop(verbose):
     """Drop tables."""
     click.secho("Dropping all tables!", fg="red", bold=True)
-    with click.progressbar(reversed(_db.metadata.sorted_tables)) as bar:
+    with click.progressbar(reversed(current_sqlalchemy.metadata.sorted_tables)) as bar:
         for table in bar:
             if verbose:
                 click.echo(" Dropping table {0}".format(table))
-            table.drop(bind=_db.engine, checkfirst=True)
+            table.drop(bind=current_sqlalchemy.engine, checkfirst=True)
         drop_alembic_version_table()
     click.secho("Dropped all tables!", fg="green")
 
@@ -90,9 +77,10 @@ def drop(verbose):
 @with_appcontext
 def init():
     """Create database."""
-    displayed_database = render_url(_db.engine.url)
+    displayed_database = render_url(current_sqlalchemy.engine.url)
     click.secho(f"Creating database {displayed_database}", fg="green")
-    database_url = str(_db.engine.url)
+    database_url = current_sqlalchemy.engine.url.render_as_string(hide_password=False)
+
     if not database_exists(database_url):
         create_database(database_url)
 
@@ -108,12 +96,14 @@ def init():
 @with_appcontext
 def destroy():
     """Drop database."""
-    displayed_database = render_url(_db.engine.url)
+    displayed_database = render_url(current_sqlalchemy.engine.url)
     click.secho(f"Destroying database {displayed_database}", fg="red", bold=True)
-    if _db.engine.name == "sqlite":
+
+    plain_url = current_sqlalchemy.engine.url.render_as_string(hide_password=False)
+    if current_sqlalchemy.engine.name == "sqlite":
         try:
-            drop_database(_db.engine.url)
-        except FileNotFoundError as e:
+            drop_database(plain_url)
+        except FileNotFoundError:
             click.secho("Sqlite database has not been initialised", fg="red", bold=True)
     else:
-        drop_database(_db.engine.url)
+        drop_database(plain_url)
