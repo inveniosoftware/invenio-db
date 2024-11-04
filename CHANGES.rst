@@ -8,6 +8,17 @@
 Changes
 =======
 
+Version v1.3.0 (released 2024-11-04)
+
+- uow: add "on_exception" lifecycle hook
+    * When an exception occurs and the unit of work is being rolled back, we
+      want to add the possibility to perform some clean-up actions that can
+      also be commited to the database.
+    * The new `on_exception` method is added because we want to keep
+      backwards compatibility and also introduce the same "triplet" of
+      methods as we have for the "happy path" (`on_register`, `on_commit`,
+      `on_post_commit`).
+
 Version 1.2.0 (released 2024-10-01)
 
 - uow: moved Unit of Work pattern and non-records Operations from
