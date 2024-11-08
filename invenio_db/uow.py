@@ -242,7 +242,7 @@ def unit_of_work(**kwargs):
     def decorator(f):
         @wraps(f)
         def inner(self, *args, **kwargs):
-            if "uow" not in kwargs:
+            if "uow" not in kwargs or kwargs["uow"] is None:
                 # Migration path - start a UoW and commit
                 with UnitOfWork(db.session) as uow:
                     kwargs["uow"] = uow
