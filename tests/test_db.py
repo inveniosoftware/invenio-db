@@ -335,19 +335,21 @@ def test_local_proxy(app, db):
 
     with app.app_context():
         query = db.select(
-            [
+            *[
                 db.literal("hello") != db.bindparam("a"),
                 db.literal(0) <= db.bindparam("x"),
                 db.literal("2") == db.bindparam("y"),
                 db.literal(None).is_(db.bindparam("z")),
             ]
         )
-        result = db.engine.execute(
+        result = db.session.execute(
             query,
-            a="world",
-            x=1,
-            y="2",
-            z=None,
+            {
+                "a": "world",
+                "x": 1,
+                "y": "2",
+                "z": None,
+            },
         ).fetchone()
         assert result == (True, True, True, True)
 
