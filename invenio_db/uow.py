@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2024 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -167,6 +168,7 @@ class UnitOfWork:
 
     def __enter__(self):
         """Entering the context."""
+        self.session.begin_nested()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
