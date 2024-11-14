@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version v1.3.1 (released 2024-11-14)
+
+- uow: improve decorator to create uow if it's None
+
 Version v1.3.0 (released 2024-11-04)
 
 - uow: add "on_exception" lifecycle hook
