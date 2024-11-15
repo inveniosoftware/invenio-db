@@ -2,12 +2,15 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2017-2018 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 # from .signals import secret_key_changed
 
 """Invenio-DB utility functions."""
+
+from datetime import datetime, timezone
 
 from flask import current_app
 from sqlalchemy import inspect
@@ -129,3 +132,8 @@ def has_table(engine, table):
     except AttributeError:
         # SQLAlchemy <1.4
         return engine.has_table(table)
+
+
+def now():
+    """Creates a datetime object."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
