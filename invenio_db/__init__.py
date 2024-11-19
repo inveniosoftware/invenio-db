@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2024 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -91,7 +92,7 @@ version locations is assembled from ``invenio_db.alembic`` entry point group.
 from .ext import InvenioDB
 from .shared import db
 
-__version__ = "1.3.1"
+__version__ = "2.0.0"
 
 __all__ = (
     "__version__",
