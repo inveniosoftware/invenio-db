@@ -2,16 +2,20 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Shared database object for Invenio."""
 
+from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from sqlalchemy import MetaData, event, util
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
+from sqlalchemy.types import DateTime, TypeDecorator
 from werkzeug.local import LocalProxy
 
 NAMING_CONVENTION = util.immutabledict(
@@ -29,8 +33,33 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 """Default database metadata object holding associated schema constructs."""
 
 
+class UTCDateTime(TypeDecorator):
+    """Custom UTC datetime type."""
+
+    impl = DateTime
+
+    def process_bind_param(self, value, dialect):
+        """Process value storing into database."""
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=None)
+        return value
+
+    def process_result_value(self, value, dialect):
+        """Process value retrieving from database."""
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=None)
+        return value
+
+
 class SQLAlchemy(FlaskSQLAlchemy):
     """Implement or overide extension methods."""
+
+    def __getattr__(self, name):
+        """Get attr."""
+        if name == "UTCDateTime":
+            return UTCDateTime
+
+        return super().__getattr__(name)
 
     def apply_driver_hacks(self, app, sa_url, options):
         """Call before engine creation."""
