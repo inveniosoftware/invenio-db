@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -316,3 +316,8 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 # Autodoc configuraton.
 autoclass_content = "both"
+
+nitpick_ignore = [
+    ("py:class", "TypeDecorator"),
+    ("py:class", "sqlalchemy.sql.sqltypes.DateTime"),
+]
