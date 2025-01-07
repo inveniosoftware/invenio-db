@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2024 Graz University of Technology.
+# Copyright (C) 2024-2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -37,6 +37,9 @@ class UTCDateTime(TypeDecorator):
     """Custom UTC datetime type."""
 
     impl = DateTime
+
+    # todo: should be discussed, but has to be set explicitly to remove warning
+    cache_ok = False
 
     def process_bind_param(self, value, dialect):
         """Process value storing into database."""
