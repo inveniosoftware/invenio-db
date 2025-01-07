@@ -2,13 +2,12 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2022-2026 Graz University of Technology.
+# Copyright (C) 2022-2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Sphinx configuration."""
-
 
 from invenio_db import __version__
 
@@ -308,7 +307,10 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
+}
 
 # Autodoc configuraton.
 autoclass_content = "both"
@@ -324,4 +326,6 @@ nitpick_ignore = [
     ("py:class", "flask_sqlalchemy.extension._FSA_MCT"),
     ("py:class", "TypeDecorator"),
     ("py:class", "sqlalchemy.sql.sqltypes.DateTime"),
+    ("py:class", "ExternalType"),
+    ("py:class", "UserDefinedType"),
 ]
