@@ -9,10 +9,10 @@
 
 """Shared database object for Invenio."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
-from sqlalchemy import MetaData, event, util
+from sqlalchemy import Column, MetaData, event, util
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
 from sqlalchemy.types import DateTime, TypeDecorator
@@ -43,15 +43,40 @@ class UTCDateTime(TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         """Process value storing into database."""
-        if isinstance(value, datetime):
-            return value.replace(tzinfo=None)
-        return value
+        if value is None:
+            return value
+
+        if isinstance(value, str):
+            value = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+
+        if not isinstance(value, datetime):
+            msg = f"ERROR: value: {value} is not of type datetime, instead of type: {type(value)}"
+            raise ValueError(msg)
+
+        if value.tzinfo not in (None, timezone.utc):
+            msg = (
+                f"ERror: value: {value} doesn't have a tzinfo of None or timezone.utc."
+            )
+            raise ValueError(msg)
+
+        return value.replace(tzinfo=None)
 
     def process_result_value(self, value, dialect):
         """Process value retrieving from database."""
-        if isinstance(value, datetime):
-            return value.replace(tzinfo=None)
-        return value
+        if value is None:
+            return None
+
+        if not isinstance(value, datetime):
+            msg = f"ERROR: value: {value} is not of type datetime."
+            raise ValueError(msg)
+
+        if value.tzinfo not in (None, timezone.utc):
+            msg = (
+                f"ERror: value: {value} doesn't have a tzinfo of None or timezone.utc."
+            )
+            raise ValueError(msg)
+
+        return value.replace(tzinfo=None)
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
