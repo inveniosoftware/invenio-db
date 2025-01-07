@@ -79,6 +79,43 @@ class UTCDateTime(TypeDecorator):
         return value.replace(tzinfo=None)
 
 
+class Timestamp:
+    """Adds `created` and `updated` columns to a derived declarative model.
+
+    The `created` column is handled through a default and the `updated`
+    column is handled through a `before_update` event that propagates
+    for all derived declarative models.
+
+    ::
+
+        from invenio_db import db
+        class SomeModel(Base, db.Timestamp):
+            __tablename__ = "somemodel"
+            id = sa.Column(sa.Integer, primary_key=True)
+    """
+
+    created = Column(
+        UTCDateTime,
+        default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None),
+        nullable=False,
+    )
+    updated = Column(
+        UTCDateTime,
+        default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None),
+        nullable=False,
+    )
+
+
+@event.listens_for(Timestamp, "before_update", propagate=True)
+def timestamp_before_update(mapper, connection, target):
+    """Update timestamp on before_update event.
+
+    When a model with a timestamp is updated; force update the updated
+    timestamp.
+    """
+    target.updated = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+
+
 class SQLAlchemy(FlaskSQLAlchemy):
     """Implement or overide extension methods."""
 
@@ -86,6 +123,9 @@ class SQLAlchemy(FlaskSQLAlchemy):
         """Get attr."""
         if name == "UTCDateTime":
             return UTCDateTime
+
+        if name == "Timestamp":
+            return Timestamp
 
         return super().__getattr__(name)
 
