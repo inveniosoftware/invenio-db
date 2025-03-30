@@ -4,12 +4,15 @@
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
 # Copyright (C) 2024 Graz University of Technology.
+# Copyright (C) 2025 TU Wien.
+# Copyright (C) 2025 KTH Royal Institute of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Test database integration layer."""
 
+import os
 from unittest.mock import patch
 
 import pytest
@@ -406,3 +409,59 @@ def test_db_create_alembic_upgrade(app, db):
             drop_database(str(db.engine.url.render_as_string(hide_password=False)))
             remove_versioning(manager=ext.versioning_manager)
             create_database(str(db.engine.url.render_as_string(hide_password=False)))
+
+
+@pytest.mark.parametrize(
+    "configs, expected_uri",
+    [
+        (
+            {
+                "DB_USER": "testuser",
+                "DB_PASSWORD": "testpassword",
+                "DB_HOST": "testhost",
+                "DB_PORT": "5432",
+                "DB_NAME": "testdb",
+                "DB_PROTOCOL": "postgresql+psycopg2",
+            },
+            "postgresql+psycopg2://testuser:testpassword@testhost:5432/testdb",
+        ),
+        (
+            {
+                "SQLALCHEMY_DATABASE_URI": "postgresql+psycopg2://testuser:testpassword@testhost:5432/testdb"
+            },
+            "postgresql+psycopg2://testuser:testpassword@testhost:5432/testdb",
+        ),
+        (
+            {
+                "DB_USER": "testuser",
+                "DB_PASSWORD": "testpassword",
+                "DB_HOST": "testhost",
+                "DB_PORT": "5432",
+                "DB_NAME": "testdb",
+                "DB_PROTOCOL": "postgresql+psycopg2",
+                "SQLALCHEMY_DATABASE_URI": "sqlite:///testdb.db",
+            },
+            "sqlite:///testdb.db",
+        ),
+        (
+            {
+                "DB_USER": "testuser",
+                "DB_PASSWORD": "testpassword",
+                "DB_HOST": "testhost",
+                "DB_PORT": "5432",
+                "DB_NAME": "testdb",
+                "DB_PROTOCOL": None,
+            },
+            None,
+        ),
+    ],
+)
+def test_build_db_uri(configs, expected_uri):
+    """Test building database URI."""
+    app = Flask("test_app")
+    assert "SQLALCHEMY_DATABASE_URI" not in app.config
+    app.config["DB_VERSIONING"] = False
+    app.config.update(configs)
+    InvenioDB(app)
+    default_uri = "sqlite:///" + os.path.join(app.instance_path, app.name + ".db")
+    assert app.config["SQLALCHEMY_DATABASE_URI"] == expected_uri or default_uri
