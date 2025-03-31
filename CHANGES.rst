@@ -9,6 +9,11 @@
 Changes
 =======
 
+Version <next>
+
+- init: create connection string from its parts if available
+- chore: remove unused imports
+
 Version v2.0.0 (released 2024-11-19)
 
 - uow: possible solution for the rollback problem

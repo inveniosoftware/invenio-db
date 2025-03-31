@@ -4,6 +4,8 @@
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
 # Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2025 TU Wien.
+# Copyright (C) 2025 KTH Royal Institute of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -66,8 +68,49 @@ class InvenioDB(object):
         app.extensions["invenio-db"] = self
         app.cli.add_command(db_cmd)
 
+    def build_db_uri(self, app):
+        """Return the connection string if configured or build it from its parts.
+
+        If set, then ``SQLALCHEMY_DATABASE_URI`` will be returned.
+        Otherwise, the URI will be pieced together by the configuration items
+        ``DB_{USER,PASSWORD,HOST,PORT,NAME,PROTOCOL}``, where ``DB_PORT`` is
+        optional.
+        If that cannot be done (e.g. because required values are missing), then
+        ``None`` will be returned.
+        """
+        if uri := app.config.get("SQLALCHEMY_DATABASE_URI", None):
+            return uri
+
+        params = {}
+        for config_name in ["USER", "PASSWORD", "HOST", "PORT", "NAME", "PROTOCOL"]:
+            params[config_name] = app.config.get(f"DB_{config_name}", None)
+
+        # The port is expected to be an int, and optional
+        if port := params.pop("PORT", None):
+            params["PORT"] = int(port)
+
+        if all(params.values()):
+            uri = sa.URL.create(
+                params["PROTOCOL"],
+                username=params["USER"],
+                password=params["PASSWORD"],
+                host=params["HOST"],
+                port=params["PORT"],
+                database=params["NAME"],
+            )
+            return uri
+        elif any(params.values()):
+            app.logger.warn(
+                'Ignoring "DB_*" config values as they are only partially set.'
+            )
+
+        return None
+
     def init_db(self, app, entry_point_group="invenio_db.models", **kwargs):
         """Initialize Flask-SQLAlchemy extension."""
+        if uri := self.build_db_uri(app):
+            app.config["SQLALCHEMY_DATABASE_URI"] = uri
+
         # Setup SQLAlchemy
         app.config.setdefault(
             "SQLALCHEMY_DATABASE_URI",
