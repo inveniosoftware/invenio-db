@@ -10,6 +10,7 @@
 
 """Test database integration layer."""
 
+import importlib.metadata
 from unittest.mock import patch
 
 import pytest
@@ -248,7 +249,7 @@ def test_transaction(db, app):
         db.drop_all()
 
 
-@patch("importlib_metadata.entry_points", _mock_entry_points("invenio_db.models"))
+@patch("importlib.metadata.entry_points", _mock_entry_points("invenio_db.models"))
 def test_entry_points(db, app):
     """Test entrypoints loading."""
     InvenioDB(app, db=db)
@@ -259,8 +260,13 @@ def test_entry_points(db, app):
 
     # Test merging a base another file.
     with runner.isolated_filesystem():
+
+        # show help
         result = runner.invoke(db_cmd, [])
-        assert result.exit_code == 0
+        click_help_result_code = (
+            0 if importlib.metadata.version("click") < "8.2.0" else 2
+        )
+        assert result.exit_code == click_help_result_code
 
         result = runner.invoke(db_cmd, ["init"])
         assert result.exit_code == 0

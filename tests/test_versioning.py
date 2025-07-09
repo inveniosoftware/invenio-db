@@ -19,7 +19,7 @@ from sqlalchemy_continuum import VersioningManager, remove_versioning
 from invenio_db import InvenioDB
 
 
-@patch("importlib_metadata.entry_points", _mock_entry_points("invenio_db.models_a"))
+@patch("importlib.metadata.entry_points", _mock_entry_points("invenio_db.models_a"))
 def test_disabled_versioning(db, app):
     """Test SQLAlchemy-Continuum with disabled versioning."""
     InvenioDB(app, entry_point_group="invenio_db.models_a")
@@ -61,7 +61,7 @@ def test_disabled_versioning_with_custom_table(db, app, versioning, tables):
         remove_versioning(manager=idb.versioning_manager)
 
 
-@patch("importlib_metadata.entry_points", _mock_entry_points("invenio_db.models_b"))
+@patch("importlib.metadata.entry_points", _mock_entry_points("invenio_db.models_b"))
 def test_versioning(db, app):
     """Test SQLAlchemy-Continuum enabled versioning."""
     app.config["DB_VERSIONING"] = True
