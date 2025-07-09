@@ -11,11 +11,13 @@
 """Database management for Invenio."""
 
 import os
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
+from importlib.resources import files
 
-import importlib_metadata
-import importlib_resources
 import sqlalchemy as sa
 from flask_alembic import Alembic
+from invenio_base.utils import entry_points
 from sqlalchemy_utils.functions import get_class_by_table
 
 from .cli import db as db_cmd
@@ -37,16 +39,14 @@ class InvenioDB(object):
         self.init_db(app, **kwargs)
 
         def pathify(base_entry):
-            return str(
-                importlib_resources.files(base_entry.module)
-                / os.path.join(base_entry.attr)
-            )
+            return str(files(base_entry.module) / os.path.join(base_entry.attr))
 
-        entry_points = importlib_metadata.entry_points(group="invenio_db.alembic")
+        alembic_entry_points = entry_points(group="invenio_db.alembic")
         version_locations = [
-            (base_entry.name, pathify(base_entry)) for base_entry in entry_points
+            (base_entry.name, pathify(base_entry))
+            for base_entry in alembic_entry_points
         ]
-        script_location = str(importlib_resources.files("invenio_db") / "alembic")
+        script_location = str(files("invenio_db") / "alembic")
         app.config.setdefault(
             "ALEMBIC",
             {
@@ -86,7 +86,7 @@ class InvenioDB(object):
 
         # Initialize model bases
         if entry_point_group:
-            for base_entry in importlib_metadata.entry_points(group=entry_point_group):
+            for base_entry in entry_points(group=entry_point_group):
                 base_entry.load()
 
         # All models should be loaded by now.
@@ -105,8 +105,8 @@ class InvenioDB(object):
     def init_versioning(self, app, database, versioning_manager=None):
         """Initialize the versioning support using SQLAlchemy-Continuum."""
         try:
-            importlib_metadata.version("sqlalchemy_continuum")
-        except importlib_metadata.PackageNotFoundError:  # pragma: no cover
+            package_version("sqlalchemy_continuum")
+        except PackageNotFoundError:  # pragma: no cover
             default_versioning = False
         else:
             default_versioning = True
@@ -130,8 +130,8 @@ class InvenioDB(object):
         # Try to guess user model class:
         if "DB_VERSIONING_USER_MODEL" not in app.config:  # pragma: no cover
             try:
-                importlib_metadata.version("invenio_accounts")
-            except importlib_metadata.PackageNotFoundError:
+                package_version("invenio_accounts")
+            except PackageNotFoundError:
                 user_cls = None
             else:
                 user_cls = "User"
