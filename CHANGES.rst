@@ -9,6 +9,10 @@
 Changes
 =======
 
+Version v2.1.0 (released 2025-07-14)
+
+- chores: replaced importlib_xyz with importlib
+
 Version v2.0.0 (released 2024-11-19)
 
 - uow: possible solution for the rollback problem
