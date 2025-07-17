@@ -1,7 +1,7 @@
 ..
     This file is part of Invenio.
     Copyright (C) 2015-2024 CERN.
-    Copyright (C) 2024 Graz University of Technology.
+    Copyright (C) 2024-2025 Graz University of Technology.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
@@ -9,8 +9,9 @@
 Changes
 =======
 
-Version v2.1.0 (released 2025-07-14)
+Version v2.1.0 (released 2025-07-17)
 
+- workflows: switch to centralized workflows
 - chores: replaced importlib_xyz with importlib
 
 Version v2.0.0 (released 2024-11-19)
