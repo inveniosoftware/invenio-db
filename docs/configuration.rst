@@ -30,6 +30,26 @@ packages.
    User class used by versioning manager. Defaults to ``'User'`` if
    ``invenio_accounts`` package is installed.
 
+
+.. data:: DB_SESSION_BIND_FUNC
+
+   Function (or import string, e.g. ``"mypackage.db:routed_bind"``) used for
+   dynamically selecting the SQLAlchemy session bind engine/connection. The function
+   accepts the ``db.session`` instance and the original
+   ``flask_sqlalchemy.session.Session.get_bind(*args, **kwargs)`` arguments, i.e. it is
+   like a method call. Returning ``None`` falls back to the default bind. Defaults to
+   ``None``.
+
+   This function is particularly useful for dynamic connection routing, e.g. in the case
+   of primary-replica database setups, where some read operations could be routed to a
+   read replica database, while write operations would go to the primary as normal.
+
+   The returned bind is used for every statement of the session, including flushes. If
+   a write happens while routed to a read replica, PostgreSQL rejects it with
+   ``cannot execute ... in a read-only transaction``, so only route operations that
+   never write.
+
+
 .. data:: ALEMBIC
 
    Dictionary containing general configuration for Flask-Alembic. It contains

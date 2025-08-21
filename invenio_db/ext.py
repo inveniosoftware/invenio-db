@@ -18,7 +18,7 @@ from importlib.resources import files
 import sqlalchemy as sa
 from flask import current_app
 from flask_alembic import Alembic
-from invenio_base.utils import entry_points
+from invenio_base.utils import entry_points, obj_or_import_string
 from sqlalchemy.exc import OperationalError
 from sqlalchemy_utils.functions import get_class_by_table
 
@@ -150,6 +150,11 @@ class InvenioDB(object):
         app.config.setdefault("SQLALCHEMY_ECHO", False)
         # Needed for before/after_flush/commit/rollback events
         app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", True)
+
+        # Resolve import strings once, since get_bind runs for every statement
+        app.config["DB_SESSION_BIND_FUNC"] = obj_or_import_string(
+            app.config.get("DB_SESSION_BIND_FUNC")
+        )
 
         # Check if the DB is PostgreSQL. We don't include the `://` since the driver name
         # usually follows the `postgres` (e.g. `postgres+psycopg2`), and we don't know 100%
