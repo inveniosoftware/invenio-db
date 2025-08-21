@@ -13,6 +13,7 @@ API Docs
 
 .. automodule:: invenio_db.shared
    :members:
+   :exclude-members: Session
 
 .. automodule:: invenio_db.cli
    :members:
