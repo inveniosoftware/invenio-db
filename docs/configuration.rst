@@ -50,5 +50,5 @@ packages.
 Please check following packages for further configuration options:
 
 1. `Flask-SQLAlchemy <https://flask-sqlalchemy.readthedocs.io/en/stable/config/>`_
-2. `Flask-Alembic <https://flask-alembic.readthedocs.io/en/stable/#configuration>`_
+2. `Flask-Alembic <https://flask-alembic.readthedocs.io/en/latest/config/>`_
 3. `SQLAlchemy-Continuum <https://sqlalchemy-continuum.readthedocs.io/en/latest/configuration.html>`_
