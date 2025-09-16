@@ -77,6 +77,9 @@ class InvenioDB(object):
         # Needed for before/after_flush/commit/rollback events
         app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", True)
 
+        # Set the session bind function
+        app.config.setdefault("DB_SESSION_BIND_FUNC", None)
+
         # Initialize Flask-SQLAlchemy extension.
         database = kwargs.get("db", db)
         database.init_app(app)

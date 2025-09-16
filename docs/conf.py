@@ -9,11 +9,6 @@
 
 """Sphinx configuration."""
 
-import os
-import sys
-
-import sphinx.environment
-
 from invenio_db import __version__
 
 # -- General configuration ------------------------------------------------
