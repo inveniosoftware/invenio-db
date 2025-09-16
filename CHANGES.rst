@@ -9,6 +9,10 @@
 Changes
 =======
 
+Version v2.1.1 (released 2025-09-16)
+
+- fix(setup): pin sqlalchemy-utils
+
 Version v2.1.0 (released 2025-07-17)
 
 - workflows: switch to centralized workflows
