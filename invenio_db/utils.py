@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2017-2018 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2026 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -10,6 +10,9 @@
 
 """Invenio-DB utility functions."""
 
+from functools import partial
+
+from alembic import op
 from flask import current_app
 from sqlalchemy import inspect
 
@@ -128,3 +131,31 @@ def has_table(engine, table):
     except AttributeError:
         # SQLAlchemy <1.4
         return engine.has_table(table)
+
+
+def update_table_columns_column_type(
+    table_name, column_name, to_type=None, existing_type=None, existing_nullable=None
+):
+    """Update column type."""
+    op.alter_column(
+        table_name,
+        column_name,
+        type_=to_type(),
+        existing_type=existing_type(),
+        existing_nullable=existing_nullable,
+    )
+
+
+update_table_columns_column_type_to_utc_datetime = partial(
+    update_table_columns_column_type,
+    to_type=_db.UTCDateTime,
+    existing_type=_db.DateTime,
+    existing_nullable=True,
+)
+
+update_table_columns_column_type_to_datetime = partial(
+    update_table_columns_column_type,
+    to_type=_db.DateTime,
+    existing_type=_db.UTCDateTime,
+    existing_nullable=True,
+)

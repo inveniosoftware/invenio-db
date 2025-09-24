@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2024-2025 Graz University of Technology.
+# Copyright (C) 2024-2026 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -36,7 +36,7 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 class UTCDateTime(TypeDecorator):
     """Custom UTC datetime type."""
 
-    impl = DateTime
+    impl = DateTime(timezone=True)
 
     # todo: should be discussed, but has to be set explicitly to remove warning
     cache_ok = False
@@ -54,12 +54,10 @@ class UTCDateTime(TypeDecorator):
             raise ValueError(msg)
 
         if value.tzinfo not in (None, timezone.utc):
-            msg = (
-                f"ERror: value: {value} doesn't have a tzinfo of None or timezone.utc."
-            )
+            msg = f"Error: value: {value}, tzinfo: {value.tzinfo} doesn't have a tzinfo of None or timezone.utc."
             raise ValueError(msg)
 
-        return value.replace(tzinfo=None)
+        return value.replace(tzinfo=timezone.utc)
 
     def process_result_value(self, value, dialect):
         """Process value retrieving from database."""
@@ -72,11 +70,11 @@ class UTCDateTime(TypeDecorator):
 
         if value.tzinfo not in (None, timezone.utc):
             msg = (
-                f"ERror: value: {value} doesn't have a tzinfo of None or timezone.utc."
+                f"Error: value: {value} doesn't have a tzinfo of None or timezone.utc."
             )
             raise ValueError(msg)
 
-        return value.replace(tzinfo=None)
+        return value.replace(tzinfo=timezone.utc)
 
 
 class Timestamp:
@@ -96,12 +94,12 @@ class Timestamp:
 
     created = Column(
         UTCDateTime,
-        default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None),
+        default=lambda: datetime.now(tz=timezone.utc),
         nullable=False,
     )
     updated = Column(
         UTCDateTime,
-        default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None),
+        default=lambda: datetime.now(tz=timezone.utc),
         nullable=False,
     )
 
@@ -113,7 +111,7 @@ def timestamp_before_update(mapper, connection, target):
     When a model with a timestamp is updated; force update the updated
     timestamp.
     """
-    target.updated = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+    target.updated = datetime.now(tz=timezone.utc)
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
