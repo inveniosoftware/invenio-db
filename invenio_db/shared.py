@@ -54,12 +54,10 @@ class UTCDateTime(TypeDecorator):
             raise ValueError(msg)
 
         if value.tzinfo not in (None, timezone.utc):
-            msg = (
-                f"ERror: value: {value} doesn't have a tzinfo of None or timezone.utc."
-            )
+            msg = f"Error: value: {value}, tzinfo: {value.tzinfo} doesn't have a tzinfo of None or timezone.utc."
             raise ValueError(msg)
 
-        return value.replace(tzinfo=None)
+        return value.replace(tzinfo=timezone.utc)
 
     def process_result_value(self, value, dialect):
         """Process value retrieving from database."""
@@ -72,11 +70,11 @@ class UTCDateTime(TypeDecorator):
 
         if value.tzinfo not in (None, timezone.utc):
             msg = (
-                f"ERror: value: {value} doesn't have a tzinfo of None or timezone.utc."
+                f"Error: value: {value} doesn't have a tzinfo of None or timezone.utc."
             )
             raise ValueError(msg)
 
-        return value.replace(tzinfo=None)
+        return value.replace(tzinfo=timezone.utc)
 
 
 class Timestamp:
@@ -96,12 +94,12 @@ class Timestamp:
 
     created = Column(
         UTCDateTime,
-        default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None),
+        default=lambda: datetime.now(tz=timezone.utc),
         nullable=False,
     )
     updated = Column(
         UTCDateTime,
-        default=lambda: datetime.now(tz=timezone.utc).replace(tzinfo=None),
+        default=lambda: datetime.now(tz=timezone.utc),
         nullable=False,
     )
 
@@ -113,7 +111,7 @@ def timestamp_before_update(mapper, connection, target):
     When a model with a timestamp is updated; force update the updated
     timestamp.
     """
-    target.updated = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+    target.updated = datetime.now(tz=timezone.utc)
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
