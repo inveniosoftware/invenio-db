@@ -2,16 +2,20 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2024-2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Shared database object for Invenio."""
 
+from datetime import datetime, timezone
+
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
-from sqlalchemy import MetaData, event, util
+from sqlalchemy import Column, MetaData, event, util
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
+from sqlalchemy.types import DateTime, TypeDecorator
 from werkzeug.local import LocalProxy
 
 NAMING_CONVENTION = util.immutabledict(
@@ -29,8 +33,99 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 """Default database metadata object holding associated schema constructs."""
 
 
+class UTCDateTime(TypeDecorator):
+    """Custom UTC datetime type."""
+
+    impl = DateTime
+
+    # todo: should be discussed, but has to be set explicitly to remove warning
+    cache_ok = False
+
+    def process_bind_param(self, value, dialect):
+        """Process value storing into database."""
+        if value is None:
+            return value
+
+        if isinstance(value, str):
+            value = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+
+        if not isinstance(value, datetime):
+            msg = f"ERROR: value: {value} is not of type datetime, instead of type: {type(value)}"
+            raise ValueError(msg)
+
+        if value.tzinfo not in (None, timezone.utc):
+            msg = f"Error: value: {value}, tzinfo: {value.tzinfo} doesn't have a tzinfo of None or timezone.utc."
+            raise ValueError(msg)
+
+        return value.replace(tzinfo=timezone.utc)
+
+    def process_result_value(self, value, dialect):
+        """Process value retrieving from database."""
+        if value is None:
+            return None
+
+        if not isinstance(value, datetime):
+            msg = f"ERROR: value: {value} is not of type datetime."
+            raise ValueError(msg)
+
+        if value.tzinfo not in (None, timezone.utc):
+            msg = (
+                f"Error: value: {value} doesn't have a tzinfo of None or timezone.utc."
+            )
+            raise ValueError(msg)
+
+        return value.replace(tzinfo=timezone.utc)
+
+
+class Timestamp:
+    """Adds `created` and `updated` columns to a derived declarative model.
+
+    The `created` column is handled through a default and the `updated`
+    column is handled through a `before_update` event that propagates
+    for all derived declarative models.
+
+    ::
+
+        from invenio_db import db
+        class SomeModel(Base, db.Timestamp):
+            __tablename__ = "somemodel"
+            id = sa.Column(sa.Integer, primary_key=True)
+    """
+
+    created = Column(
+        UTCDateTime,
+        default=lambda: datetime.now(tz=timezone.utc),
+        nullable=False,
+    )
+    updated = Column(
+        UTCDateTime,
+        default=lambda: datetime.now(tz=timezone.utc),
+        nullable=False,
+    )
+
+
+@event.listens_for(Timestamp, "before_update", propagate=True)
+def timestamp_before_update(mapper, connection, target):
+    """Update timestamp on before_update event.
+
+    When a model with a timestamp is updated; force update the updated
+    timestamp.
+    """
+    target.updated = datetime.now(tz=timezone.utc)
+
+
 class SQLAlchemy(FlaskSQLAlchemy):
     """Implement or overide extension methods."""
+
+    def __getattr__(self, name):
+        """Get attr."""
+        if name == "UTCDateTime":
+            return UTCDateTime
+
+        if name == "Timestamp":
+            return Timestamp
+
+        return super().__getattr__(name)
 
     def apply_driver_hacks(self, app, sa_url, options):
         """Call before engine creation."""
