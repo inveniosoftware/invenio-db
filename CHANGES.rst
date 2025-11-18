@@ -9,6 +9,11 @@
 Changes
 =======
 
+Version v2.1.2 (released 2025-11-17)
+
+- fix(setup): pin Flask-Alembic due to breaking changes in v3.2.0 causing
+  issues with CI alembic tests across Invenio modules
+
 Version v2.1.1 (released 2025-09-16)
 
 - fix(setup): pin sqlalchemy-utils
