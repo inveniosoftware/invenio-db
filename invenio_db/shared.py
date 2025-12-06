@@ -8,7 +8,9 @@
 
 """Shared database object for Invenio."""
 
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
+from flask_sqlalchemy.session import Session as BaseSession
 from sqlalchemy import MetaData, event, util
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import text
@@ -106,7 +108,43 @@ def do_sqlite_begin(dbapi_connection):
     dbapi_connection.execute(text("BEGIN"))
 
 
-db = SQLAlchemy(metadata=metadata)
+# NOTE: We are defining this class here, since the Flask-SQLAlchemy extension doesn't
+# follow a traditional "lazy" configuration, to allow overriding `session_options` via
+# the usual application config.
+class Session(BaseSession):
+    """Custom session class to allow configuring dynamic engine/connection binding."""
+
+    def get_bind(self, *args, **kwargs):
+        """Hijacked to allow dynamic binding.
+
+        Example usage for routing anonymous read requests to a read replica configured
+        bind:
+
+        .. code-block::python
+
+            from flask import request, current_app
+            from flask_login import current_user
+
+            def routed_bind(session, *args, **kwargs)
+                if request and request.method in ["GET", "HEAD"]:
+                    read_endpoints = current_app.config.get(
+                        "MY_READ_REPLICA_ENDOINTS",
+                        ["records.detail", "records.file_download"],
+                    )
+                    if current_user.is_anonymous and request.endpoint in read_endpoints:
+                        return session._db.engines["read_replica"]
+        """
+        if current_app:  # We can't be sure that we're in the Flask app context
+            bind_func = current_app.config.get("DB_SESSION_BIND_FUNC")
+            if bind_func and callable(bind_func):
+                bind = bind_func(self, *args, **kwargs)
+                if bind:
+                    return bind
+
+        return super().get_bind(*args, **kwargs)
+
+
+db = SQLAlchemy(metadata=metadata, session_options={"class_": Session})
 """Shared database instance using Flask-SQLAlchemy extension.
 
 This object is initialized during initialization of ``InvenioDB``
