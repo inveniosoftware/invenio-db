@@ -2,17 +2,13 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Sphinx configuration."""
 
-import os
-import sys
-
-import sphinx.environment
 
 from invenio_db import __version__
 
@@ -316,3 +312,15 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 # Autodoc configuraton.
 autoclass_content = "both"
+
+
+# To address <unknown>:1:py:class reference target not found
+# (better ideas welcomed)
+nitpick_ignore = [
+    ("py:class", "invenio_rdm_records.services.permissions.RDMRecordPermissionPolicy"),
+    ("py:class", "flask.app.Flask"),
+    ("py:class", "sqlalchemy.sql.schema.MetaData"),
+    ("py:class", "dict[str"),
+    ("py:class", "flask_sqlalchemy.query.Query"),
+    ("py:class", "flask_sqlalchemy.extension._FSA_MCT"),
+]
