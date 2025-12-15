@@ -316,3 +316,11 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 # Autodoc configuraton.
 autoclass_content = "both"
+
+# Ignore things pointed out by Sphinx nitpick mode
+nitpick_ignore = [('py:class', 'flask.app.Flask'),
+                  ('py:class', 'sqlalchemy.sql.schema.MetaData'),
+                  ('py:class', 'dict[str'),
+                  ('py:class', 'flask_sqlalchemy.query.Query'),
+                  ('py:class', 'flask_sqlalchemy.extension._FSA_MCT'),
+                  ]
