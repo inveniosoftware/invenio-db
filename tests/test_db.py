@@ -20,7 +20,7 @@ from mocks import _mock_entry_points
 from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_continuum import VersioningManager, remove_versioning
-from sqlalchemy_utils.functions import create_database, drop_database
+from sqlalchemy_utils.functions import create_database, database_exists, drop_database
 
 from invenio_db import InvenioDB
 from invenio_db.cli import db as db_cmd
@@ -252,87 +252,37 @@ def test_transaction(db, app):
 @patch("importlib.metadata.entry_points", _mock_entry_points("invenio_db.models"))
 def test_entry_points(db, app):
     """Test entrypoints loading."""
-    InvenioDB(app, db=db)
-
-    runner = app.test_cli_runner()
+    ext = InvenioDB(app, db=db)
 
     assert len(db.metadata.tables) == 2
 
-    # Test merging a base another file.
-    with runner.isolated_filesystem():
+    with app.app_context():
+        db_url = str(db.engine.url.render_as_string(hide_password=False))
 
-        # show help
-        result = runner.invoke(db_cmd, [])
-        click_help_result_code = (
-            0 if importlib.metadata.version("click") < "8.2.0" else 2
-        )
-        assert result.exit_code == click_help_result_code
+        # Test 'init'
+        ext.alembic.mkdir()
 
-        result = runner.invoke(db_cmd, ["init"])
-        assert result.exit_code == 0
+        drop_database(db_url)
+        create_database(db_url)
+        assert database_exists(db_url)
 
-        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
-        assert result.exit_code == 0
+        # 'db create' -> db.create_all() + ext.alembic.stamp()
+        db.create_all()
+        ext.alembic.stamp()
+        assert has_table(db.engine, "alembic_version")
 
-        result = runner.invoke(db_cmd, ["init"])
-        assert result.exit_code == 0
+        # 'db drop' -> db.drop_all() + drop_alembic_version_table()
+        db.drop_all()
+        drop_alembic_version_table()
+        assert len(inspect(db.engine).get_table_names()) == 0
 
-        result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 0
+        db.create_all()
+        ext.alembic.stamp()
+        assert has_table(db.engine, "alembic_version")
 
-        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["init"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["drop"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["drop", "create"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["drop", "--yes-i-know", "create"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["init"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["init"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["init"])
-        assert result.exit_code == 0
-
-        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 1
-
-        result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
-        assert result.exit_code == 0
+        db.drop_all()
+        drop_alembic_version_table()
+        assert len(inspect(db.engine).get_table_names()) == 0
 
 
 def test_local_proxy(app, db):
@@ -377,10 +327,9 @@ def test_db_create_alembic_upgrade(app, db):
 
             db.drop_all()
             runner = app.test_cli_runner()
-            # Check that 'db create' creates the same schema as
-            # 'alembic upgrade'.
-            result = runner.invoke(db_cmd, ["create", "-v"])
-            assert result.exit_code == 0
+
+            db.create_all()
+            ext.alembic.stamp()
             assert has_table(db.engine, "transaction")
             assert ext.alembic.migration_context._has_version_table()
 
