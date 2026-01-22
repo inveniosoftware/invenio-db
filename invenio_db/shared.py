@@ -47,7 +47,9 @@ class UTCDateTime(TypeDecorator):
             return value
 
         if isinstance(value, str):
-            value = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            if " " in value:
+                value = value.replace(" ", "T")
+            value = datetime.strptime(value[0:19], "%Y-%m-%dT%H:%M:%S")
 
         if not isinstance(value, datetime):
             msg = f"ERROR: value: {value} is not of type datetime, instead of type: {type(value)}"
