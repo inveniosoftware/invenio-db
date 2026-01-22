@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2023 Graz University of Technology.
+# Copyright (C) 2023-2026 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Test database integration layer."""
-
 
 from importlib_metadata import EntryPoint
 from werkzeug.utils import import_string
