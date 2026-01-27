@@ -1,13 +1,26 @@
 ..
     This file is part of Invenio.
     Copyright (C) 2015-2024 CERN.
-    Copyright (C) 2024-2025 Graz University of Technology.
+    Copyright (C) 2024-2026 Graz University of Technology.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
 Changes
 =======
+
+Version v2.2.0 (released 2026-01-27)
+
+- chore(black): apply changes for black>=26
+- fix: str of datetime
+- change(utc): use always timezone.utc
+- fix: docs reference target not found
+- db: add Timestamp class
+- UTCDateTime: handle more cases
+- db: fix warning
+- fix: docs reference target not found
+- shared: add UTCDateTime column type
+- chore: add nitpick_ignore to fix CI
 
 Version v2.1.2 (released 2025-11-17)
 
