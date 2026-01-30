@@ -9,6 +9,10 @@
 Changes
 =======
 
+Version v2.2.1 (released 2026-01-30)
+
+- fix(setup): pin sqlalchemy-continuum
+
 Version v2.2.0 (released 2026-01-27)
 
 - chore(black): apply changes for black>=26
