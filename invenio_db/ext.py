@@ -51,6 +51,10 @@ class InvenioAlembic(Alembic):
       timeout (default ``5``).
     """
 
+    def __init__(self, *args, **kwargs):
+        """Initialize InvenioAlembic."""
+        super().__init__(*args, **kwargs)
+
     def _set_lock_timeout(self):
         """Set lock_timeout on all PostgreSQL migration connections."""
         for ctx in self.migration_contexts.values():
