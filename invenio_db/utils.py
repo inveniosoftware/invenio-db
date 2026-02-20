@@ -134,7 +134,12 @@ def has_table(engine, table):
 
 
 def update_table_columns_column_type(
-    table_name, column_name, to_type=None, existing_type=None, existing_nullable=None
+    table_name,
+    column_name,
+    to_type=None,
+    existing_type=None,
+    existing_nullable=None,
+    postgresql_using=None,
 ):
     """Update column type."""
     op.alter_column(
@@ -143,15 +148,21 @@ def update_table_columns_column_type(
         type_=to_type(),
         existing_type=existing_type(),
         existing_nullable=existing_nullable,
+        postgresql_using=postgresql_using,
     )
 
 
-update_table_columns_column_type_to_utc_datetime = partial(
-    update_table_columns_column_type,
-    to_type=_db.UTCDateTime,
-    existing_type=_db.DateTime,
-    existing_nullable=True,
-)
+def update_table_columns_column_type_to_utc_datetime(table_name, column_name):
+    """Update column type to UTCDateTime."""
+    update_table_columns_column_type(
+        table_name,
+        column_name,
+        to_type=_db.UTCDateTime,
+        existing_type=_db.DateTime,
+        existing_nullable=True,
+        postgresql_using=f"{column_name} AT TIME ZONE 'UTC'",
+    )
+
 
 update_table_columns_column_type_to_datetime = partial(
     update_table_columns_column_type,
