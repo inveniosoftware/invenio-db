@@ -76,6 +76,13 @@ class InvenioDB(object):
         app.config.setdefault("SQLALCHEMY_ECHO", False)
         # Needed for before/after_flush/commit/rollback events
         app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", True)
+        app.config.setdefault(
+            "SQLALCHEMY_ENGINE_OPTIONS",
+            # Ensure the database is using the UTC timezone for interpreting timestamps (Postgres only).
+            # This overrides any default setting (e.g. in postgresql.conf). Invenio expects the DB to receive
+            # and provide UTC timestamps in all cases, so it's important that this doesn't get changed.
+            {"connect_args": {"options": "-c timezone=UTC"}},
+        )
 
         # Initialize Flask-SQLAlchemy extension.
         database = kwargs.get("db", db)
