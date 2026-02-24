@@ -8,20 +8,15 @@
 
 """Test migration lock_timeout support."""
 
-import os
 import threading
 import time
 
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.exc import OperationalError
+from utils import requires_postgresql
 
 from invenio_db import InvenioDB
-
-requires_postgresql = pytest.mark.skipif(
-    not os.environ.get("SQLALCHEMY_DATABASE_URI", "").startswith("postgresql"),
-    reason="PostgreSQL required",
-)
 
 
 @requires_postgresql
