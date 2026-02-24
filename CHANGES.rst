@@ -9,6 +9,13 @@
 Changes
 =======
 
+Version v2.3.0 (released 2026-02-24)
+
+- fix(config): use UTC for PostgreSQL
+- feat(alembic): set lock_timeout with retry on migration connections
+- docs(sphinx): ignore unresolved Flask-Alembic type refs
+- tests(utc): add unit tests for UTCDateTime
+
 Version v2.2.1 (released 2026-01-30)
 
 - fix(setup): pin sqlalchemy-continuum
