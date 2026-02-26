@@ -2,8 +2,6 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2017-2018 CERN.
-# Copyright (C) 2022 Graz University of Technology.
-# Copyright (C) 2026 University of Münster.
 # Copyright (C) 2022-2026 Graz University of Technology.
 # Copyright (C) 2026 University of Münster.
 #
