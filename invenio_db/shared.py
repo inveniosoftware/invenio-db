@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from sqlalchemy import Column, MetaData, event, util
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.sql import text
 from sqlalchemy.types import DateTime, TypeDecorator
 from werkzeug.local import LocalProxy
@@ -129,10 +129,12 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
         return super().__getattr__(name)
 
-    def apply_driver_hacks(self, app, sa_url, options):
+    def _apply_driver_defaults(self, options, app):
         """Call before engine creation."""
         # Don't forget to apply hacks defined on parent object.
-        super(SQLAlchemy, self).apply_driver_hacks(app, sa_url, options)
+        super(SQLAlchemy, self)._apply_driver_defaults(options, app)
+
+        sa_url = make_url(options["url"])
 
         if sa_url.drivername == "sqlite":
             connect_args = options.setdefault("connect_args", {})
@@ -158,6 +160,13 @@ class SQLAlchemy(FlaskSQLAlchemy):
         elif sa_url.drivername == "postgresql+psycopg2":  # pragma: no cover
             from psycopg2.extensions import adapt, register_adapter
 
+            connect_args = options.setdefault("connect_args", {})
+            if "options" not in connect_args:
+                # Ensure the database is using the UTC timezone for interpreting timestamps (PostgreSQL only).
+                # This overrides any default setting (e.g. in postgresql.conf). Invenio expects the DB to receive
+                # and provide UTC timestamps in all cases, so it's important that this doesn't get changed.
+                connect_args["options"] = "-c timezone=UTC"
+
             def adapt_proxy(proxy):
                 """Get current object and try to adapt it again."""
                 return adapt(proxy._get_current_object())
@@ -177,8 +186,6 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
             converters.conversions[LocalProxy] = escape_local_proxy
             converters.encoders[LocalProxy] = escape_local_proxy
-
-        return sa_url, options
 
 
 def do_sqlite_connect(dbapi_connection, connection_record):
