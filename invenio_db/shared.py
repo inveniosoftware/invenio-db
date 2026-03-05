@@ -213,7 +213,10 @@ def do_sqlite_connect(dbapi_connection, connection_record):
     For further details see "Foreign key support" sections on
     https://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#foreign-key-support
     """
-    # Enable foreign key constraint checking
+    # In some unit tests, we might be using multiple engines with different DBs, and we want to
+    # make 100% sure this command only runs for sqlite.
+    if not dbapi_connection.__class__.__module__.startswith("sqlite3"):
+        return
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
