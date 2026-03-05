@@ -9,6 +9,8 @@
 
 """Shared database object for Invenio."""
 
+import re
+import warnings
 from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
@@ -131,7 +133,7 @@ class SQLAlchemy(FlaskSQLAlchemy):
 
     def _apply_driver_defaults(self, options, app):
         """Call before engine creation."""
-        # Don't forget to apply hacks defined on parent object.
+        # Don't forget to apply defaults defined on parent object.
         super(SQLAlchemy, self)._apply_driver_defaults(options, app)
 
         sa_url = make_url(options["url"])
@@ -161,11 +163,28 @@ class SQLAlchemy(FlaskSQLAlchemy):
             from psycopg2.extensions import adapt, register_adapter
 
             connect_args = options.setdefault("connect_args", {})
+            options_override = "-c timezone=UTC"
             if "options" not in connect_args:
                 # Ensure the database is using the UTC timezone for interpreting timestamps (PostgreSQL only).
                 # This overrides any default setting (e.g. in postgresql.conf). Invenio expects the DB to receive
                 # and provide UTC timestamps in all cases, so it's important that this doesn't get changed.
-                connect_args["options"] = "-c timezone=UTC"
+                connect_args["options"] = options_override
+            elif (
+                # Check that the exact correct timezone override is not in the existing `options`.
+                # The regex simply checks that the override is either at the end of the string or has
+                # a space after it. Otherwise, a value like `-c timezone=UTC+3` would still match.
+                # If the app is in dev mode and is auto-reloading, the correct timezone will have been added
+                # already by the code above, so we want to avoid showing a warning.
+                not re.search(
+                    rf"{re.escape(options_override)}( |$)", connect_args["options"]
+                )
+            ):
+                warnings.warn(
+                    "It looks like you are manually passing command line options to libpq (via `connect_args.options` in `SQLALCHEMY_ENGINE_OPTIONS`). "
+                    "To avoid unexpected behaviour, InvenioDB won't add an override to these options to set the time zone to UTC. "
+                    "Please note that PostgreSQL databases used with Invenio must be in UTC. If your database or connection is configured with a non-UTC "
+                    "timezone, please change this before continuing to avoid unexpected behaviour."
+                )
 
             def adapt_proxy(proxy):
                 """Get current object and try to adapt it again."""
