@@ -66,9 +66,10 @@ def rebuild_encrypted_properties(old_key, model, properties, db=_db):
     db.session.commit()
 
 
-def create_alembic_version_table(db=_db):
+def create_alembic_version_table():
     """Create alembic_version table."""
     alembic = current_app.extensions["invenio-db"].alembic
+    db = current_app.extensions["sqlalchemy"]
     with db.engine.begin() as connection:
         context = MigrationContext.configure(connection)
         if not context._has_version_table():
