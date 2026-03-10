@@ -9,6 +9,7 @@
 
 """Shared database object for Invenio."""
 
+import warnings
 from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
@@ -44,6 +45,11 @@ class UTCDateTime(TypeDecorator):
             return value
 
         if isinstance(value, str):
+            warnings.warn(
+                "UTCDateTime: string values are deprecated, please pass a datetime object. "
+                "String values will be removed in the next major release (3.0.0).",
+                DeprecationWarning,
+            )
             if " " in value:
                 value = value.replace(" ", "T")
             value = datetime.strptime(value[0:19], "%Y-%m-%dT%H:%M:%S")
