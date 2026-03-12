@@ -9,16 +9,11 @@
 
 """Shared database object for Invenio."""
 
-import re
-import warnings
 from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from sqlalchemy import Column, MetaData, event, util
-from sqlalchemy.engine import Engine, make_url
-from sqlalchemy.sql import text
 from sqlalchemy.types import DateTime, TypeDecorator
-from werkzeug.local import LocalProxy
 
 NAMING_CONVENTION = util.immutabledict(
     {
@@ -130,106 +125,6 @@ class SQLAlchemy(FlaskSQLAlchemy):
             return Timestamp
 
         return super().__getattr__(name)
-
-    def _apply_driver_defaults(self, options, app):
-        """Call before engine creation."""
-        # Don't forget to apply defaults defined on parent object.
-        super(SQLAlchemy, self)._apply_driver_defaults(options, app)
-
-        sa_url = make_url(options["url"])
-
-        if sa_url.drivername == "sqlite":
-            connect_args = options.setdefault("connect_args", {})
-
-            if "isolation_level" not in connect_args:
-                # disable pysqlite's emitting of the BEGIN statement entirely.
-                # also stops it from emitting COMMIT before any DDL.
-                connect_args["isolation_level"] = None
-
-            if not event.contains(Engine, "connect", do_sqlite_connect):
-                event.listen(Engine, "connect", do_sqlite_connect)
-            if not event.contains(Engine, "begin", do_sqlite_begin):
-                event.listen(Engine, "begin", do_sqlite_begin)
-
-            from sqlite3 import register_adapter
-
-            def adapt_proxy(proxy):
-                """Get current object and try to adapt it again."""
-                return proxy._get_current_object()
-
-            register_adapter(LocalProxy, adapt_proxy)
-
-        elif sa_url.drivername == "postgresql+psycopg2":  # pragma: no cover
-            from psycopg2.extensions import adapt, register_adapter
-
-            connect_args = options.setdefault("connect_args", {})
-            options_override = "-c timezone=UTC"
-            if "options" not in connect_args:
-                # Ensure the database is using the UTC timezone for interpreting timestamps (PostgreSQL only).
-                # This overrides any default setting (e.g. in postgresql.conf). Invenio expects the DB to receive
-                # and provide UTC timestamps in all cases, so it's important that this doesn't get changed.
-                connect_args["options"] = options_override
-            elif (
-                # Check that the exact correct timezone override is not in the existing `options`.
-                # The regex simply checks that the override is either at the end of the string or has
-                # a space after it. Otherwise, a value like `-c timezone=UTC+3` would still match.
-                # If the app is in dev mode and is auto-reloading, the correct timezone will have been added
-                # already by the code above, so we want to avoid showing a warning.
-                not re.search(
-                    rf"{re.escape(options_override)}( |$)", connect_args["options"]
-                )
-            ):
-                warnings.warn(
-                    "It looks like you are manually passing command line options to libpq (via `connect_args.options` in `SQLALCHEMY_ENGINE_OPTIONS`). "
-                    "To avoid unexpected behaviour, InvenioDB won't add an override to these options to set the time zone to UTC. "
-                    "Please note that PostgreSQL databases used with Invenio must be in UTC. If your database or connection is configured with a non-UTC "
-                    "timezone, please change this before continuing to avoid unexpected behaviour."
-                )
-
-            def adapt_proxy(proxy):
-                """Get current object and try to adapt it again."""
-                return adapt(proxy._get_current_object())
-
-            register_adapter(LocalProxy, adapt_proxy)
-
-        elif sa_url.drivername == "mysql+pymysql":  # pragma: no cover
-            from pymysql import converters
-
-            def escape_local_proxy(val, mapping):
-                """Get current object and try to adapt it again."""
-                return converters.escape_item(
-                    val._get_current_object(),
-                    self.engine.dialect.encoding,
-                    mapping=mapping,
-                )
-
-            converters.conversions[LocalProxy] = escape_local_proxy
-            converters.encoders[LocalProxy] = escape_local_proxy
-
-
-def do_sqlite_connect(dbapi_connection, connection_record):
-    """Ensure SQLite checks foreign key constraints.
-
-    For further details see "Foreign key support" sections on
-    https://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#foreign-key-support
-    """
-    # In some unit tests, we might be using multiple engines with different DBs, and we want to
-    # make 100% sure this command only runs for sqlite.
-    if not dbapi_connection.__class__.__module__.startswith("sqlite3"):
-        return
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
-
-
-def do_sqlite_begin(dbapi_connection):
-    """Ensure SQLite transaction are started properly.
-
-    For further details see "Foreign key support" sections on
-    https://docs.sqlalchemy.org/en/rel_1_0/dialects/sqlite.html#pysqlite-serializable # noqa
-    """
-    # emit our own BEGIN
-    dbapi_connection.execute(text("BEGIN"))
 
 
 db = SQLAlchemy(metadata=metadata)
