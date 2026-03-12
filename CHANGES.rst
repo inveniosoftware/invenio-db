@@ -9,6 +9,10 @@
 Changes
 =======
 
+Version v2.4.0 (released 2026-03-12)
+
+- fix(db): improve SQLALCHEMY_ENGINE_OPTIONS handling
+
 Version v2.3.0 (released 2026-02-24)
 
 - fix(config): use UTC for PostgreSQL
