@@ -13,7 +13,9 @@
 import logging
 import os
 import random
+import re
 import time
+import warnings
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
 from importlib.resources import files
@@ -146,6 +148,32 @@ class InvenioDB(object):
         app.config.setdefault("SQLALCHEMY_ECHO", False)
         # Needed for before/after_flush/commit/rollback events
         app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", True)
+
+        # Check if the DB is PostgreSQL. We don't include the `://` since the driver name
+        # usually follows the `postgres` (e.g. `postgres+psycopg2`), and we don't know 100%
+        # what the driver will be.
+        is_postgres = app.config.get("SQLALCHEMY_DATABASE_URI").startswith("postgres")
+        if is_postgres:
+            current_engine_options = app.config.get("SQLALCHEMY_ENGINE_OPTIONS")
+            options_override = "-c timezone=UTC"
+
+            if current_engine_options is None:
+                app.config.setdefault(
+                    "SQLALCHEMY_ENGINE_OPTIONS",
+                    {"connect_args": {"options": options_override}},
+                )
+            else:
+                options_value = current_engine_options.get("connect_args", {}).get(
+                    "options", ""
+                )
+
+                if not re.search(rf"{re.escape(options_override)}( |$)", options_value):
+                    warnings.warn(
+                        "It looks like you are manually setting `SQLALCHEMY_ENGINE_OPTIONS` without specifying a UTC timezone value for PostgreSQL. "
+                        "To avoid unexpected behaviour, InvenioDB won't add an override to these options to set the time zone to UTC. "
+                        "Please note that PostgreSQL databases used with Invenio must be in UTC. If your database or connection is configured with a non-UTC "
+                        "timezone, please change this before continuing to avoid unexpected behaviour."
+                    )
 
         # Initialize Flask-SQLAlchemy extension.
         database = kwargs.get("db", db)
