@@ -3,7 +3,8 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2022 RERO.
-# Copyright (C) 2024 Graz University of Technology.
+# Copyright (C) 2024-2026 Graz University of Technology.
+# Copyright (C) 2026 University of Münster.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -287,10 +288,10 @@ def test_entry_points(db, app):
         assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 1
+        assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 1
+        assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
         assert result.exit_code == 0
@@ -305,7 +306,7 @@ def test_entry_points(db, app):
         assert result.exit_code == 1
 
         result = runner.invoke(db_cmd, ["drop", "--yes-i-know", "create"])
-        assert result.exit_code == 1
+        assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["destroy", "--yes-i-know"])
         assert result.exit_code == 0
@@ -326,10 +327,10 @@ def test_entry_points(db, app):
         assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
-        assert result.exit_code == 1
+        assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["create", "-v"])
-        assert result.exit_code == 1
+        assert result.exit_code == 0
 
         result = runner.invoke(db_cmd, ["drop", "-v", "--yes-i-know"])
         assert result.exit_code == 0

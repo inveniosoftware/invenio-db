@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2024 Graz University of Technology.
+# Copyright (C) 2026 University of Münster.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -104,4 +105,5 @@ def destroy():
         except FileNotFoundError:
             click.secho("Sqlite database has not been initialised", fg="red", bold=True)
     else:
+        current_db.engine.dispose()
         drop_database(plain_url)
