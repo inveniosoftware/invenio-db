@@ -9,6 +9,11 @@
 Changes
 =======
 
+Version v2.5.0 (released 2026-03-24)
+
+- fix(test): close connections before drop the database
+- feat(alembic): safely create alembic_version table
+
 Version v2.4.0 (released 2026-03-12)
 
 - fix(db): improve SQLALCHEMY_ENGINE_OPTIONS handling
