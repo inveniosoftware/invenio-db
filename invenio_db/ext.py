@@ -164,10 +164,14 @@ class InvenioDB(object):
                 )
             else:
                 options_value = current_engine_options.get("connect_args", {}).get(
-                    "options", ""
+                    "options", None
                 )
 
-                if not re.search(rf"{re.escape(options_override)}( |$)", options_value):
+                # if connect_args.options is set to "" it is interpreted as intentional set
+                # if connect_args.options doesn't return anything the warning would be a false positive
+                if options_value is not None and not re.search(
+                    rf"{re.escape(options_override)}( |$)", options_value
+                ):
                     warnings.warn(
                         "It looks like you are manually setting `SQLALCHEMY_ENGINE_OPTIONS` without specifying a UTC timezone value for PostgreSQL. "
                         "To avoid unexpected behaviour, InvenioDB won't add an override to these options to set the time zone to UTC. "
