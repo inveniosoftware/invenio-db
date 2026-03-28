@@ -328,4 +328,5 @@ nitpick_ignore = [
     ("py:class", "sqlalchemy.sql.sqltypes.DateTime"),
     ("py:class", "ExternalType"),
     ("py:class", "UserDefinedType"),
+    ("py:class", "sqlalchemy_continuum.VersioningManager"),
 ]

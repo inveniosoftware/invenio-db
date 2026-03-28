@@ -34,6 +34,26 @@ from .utils import versioning_models_registered
 logger = logging.getLogger(__name__)
 
 
+db_versioning_manager = None
+"""Global variable to store the current versioning manager.
+
+Holds the single :class:`sqlalchemy_continuum.VersioningManager` instance
+shared across the entire process. It is set the first time
+:meth:`InvenioDB.init_versioning` runs and reused on every subsequent call.
+
+This is necessary because ``make_versioned()`` (from SQLAlchemy-Continuum)
+must be called **once** per Python process. Calling it a second time with a
+different manager instance would register duplicate SQLAlchemy event listeners
+and may corrupt the versioning state. The InvenioDB extension can legitimately be
+initialised more than once in a single process, for example:
+
+- An application that mounts both a base app and an API app will call
+  ``init_versioning`` for each of them.
+- During a test session, pytest initialises the extension once for the
+  regular test suite and again for doctests (e.g. invenio-records).
+"""
+
+
 class InvenioAlembic(Alembic):
     """Alembic with PostgreSQL lock_timeout and retry for safe migrations.
 
@@ -180,7 +200,11 @@ class InvenioDB(object):
         database.init_app(app)
 
         # Initialize versioning support.
-        self.init_versioning(app, database, kwargs.get("versioning_manager"))
+        self.init_versioning(
+            app,
+            database,
+            kwargs.get("versioning_manager") or app.config.get("DB_VERSIONING_MANAGER"),
+        )
 
         # Initialize model bases
         if entry_point_group:
@@ -221,9 +245,14 @@ class InvenioDB(object):
             )
 
         # Now we can import SQLAlchemy-Continuum.
-        from sqlalchemy_continuum import make_versioned
+        from sqlalchemy_continuum import (
+            ClassNotVersioned,
+            make_versioned,
+            remove_versioning,
+        )
         from sqlalchemy_continuum import versioning_manager as default_vm
         from sqlalchemy_continuum.plugins import FlaskPlugin
+        from sqlalchemy_continuum.utils import get_versioning_manager
 
         # Try to guess user model class:
         if "DB_VERSIONING_USER_MODEL" not in app.config:  # pragma: no cover
@@ -238,13 +267,23 @@ class InvenioDB(object):
 
         plugins = [FlaskPlugin()] if user_cls else []
 
-        # Call make_versioned() before your models are defined.
-        self.versioning_manager = versioning_manager or default_vm
-        make_versioned(
-            user_cls=user_cls,
-            manager=self.versioning_manager,
-            plugins=plugins,
-        )
+        global db_versioning_manager
+        # In some cases, the extension can be initialized multiple times.
+        # - in api apps and base apps, for example. Also in tests,
+        # the extension is initialized once per pytests and once
+        # per doctests (see invenio-records).
+        if db_versioning_manager is not None:
+            self.versioning_manager = db_versioning_manager
+        else:
+            # Call make_versioned() before your models are defined.
+            self.versioning_manager = db_versioning_manager = (
+                versioning_manager or default_vm
+            )
+            make_versioned(
+                user_cls=user_cls,
+                manager=self.versioning_manager,
+                plugins=plugins,
+            )
 
         # Register models that have been loaded beforehand.
         builder = self.versioning_manager.builder
