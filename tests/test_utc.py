@@ -153,20 +153,16 @@ def test_timestamp_with_tz(app, db: SQLAlchemy):
         db.session.commit()
 
     with app.app_context():
-        # In this case, PostgreSQL also shifts the inserted timestamp to UTC+1.
-        # However, it now also returns the timezone with the column correctly as UTC+1.
-        # To ensure we avoid unexpected behaviour as much as possible, UTCDateTime only
-        # accepts timestamps from PostgreSQL that are in UTC, and raises an exception for
-        # all other zones.
-        # So in this case correctness is preserved but as an added safety mechanism we still
-        # reject the value.
-        with pytest.raises(ValueError) as excinfo:
-            TestTimestampWithTZ.query.all()
+        # In this case, PostgreSQL shifts the inserted timestamp to UTC+1.
+        # However, it now also returns the timezone with the column correctly as UTC.
+        # To ensure we avoid unexpected behaviour as much as possible, UTCDateTime
+        # converts all timestamps from PostgreSQL that are not in UTC to UTC.
+        TestTimestampWithTZ.query.all()
 
         expected_shifted_datetime = expected_datetime.astimezone(
             timezone(timedelta(hours=1))
         )
-        assert str(expected_shifted_datetime) in str(excinfo.value)
+        assert expected_shifted_datetime == expected_datetime.astimezone(timezone.utc)
 
         db.session.commit()
 
