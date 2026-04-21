@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2017-2018 CERN.
 # SPDX-FileCopyrightText: 2022-2026 Graz University of Technology.
 # SPDX-FileCopyrightText: 2026 University of Münster.
+# SPDX-FileCopyrightText: 2026 CESNET z.s.p.o.
 # SPDX-License-Identifier: MIT
 # from .signals import secret_key_changed
 
@@ -167,3 +168,48 @@ update_table_columns_column_type_to_datetime = partial(
     existing_type=_db.UTCDateTime,
     existing_nullable=True,
 )
+
+
+def alembic_render_item(type_, obj, autogen_context):
+    """Fix import generation and broken reprs for known types.
+
+    Alembic uses ``x.__repr__`` to generate the migration code. For ChoiceType,
+    it is broken - the generated repr does not include the ``choices`` argument.
+
+    This render function fixes it by emitting the ``choices`` argument explicitly.
+    """
+    if type_ == "type":
+        # --- ChoiceType fix ---------------------------------------------------
+        try:
+            from sqlalchemy_utils.types.choice import ChoiceType
+        except ImportError:
+            pass
+        else:
+            if isinstance(obj, ChoiceType):
+                from enum import Enum
+
+                from alembic.autogenerate.render import _repr_type
+
+                impl_repr = _repr_type(obj.impl_instance, autogen_context)
+
+                choices = obj.choices
+                if isinstance(choices, type) and issubclass(choices, Enum):
+                    # The enum class itself is omitted, since referencing it would break if the
+                    # class is later renamed, moved, or removed.
+                    # Instead, all enum values are emitted as a list of (value, name) tuples.
+                    # Note: this is for documentation purposes only; the choices list does not
+                    # affect the generated SQL.
+                    choices_list = [
+                        (member.value, member.name)
+                        for member in sorted(choices, key=lambda m: m.value)
+                    ]
+                    return (
+                        f"sqlalchemy_utils.types.choice.ChoiceType("
+                        f"{choices_list!r}, impl={impl_repr})"
+                    )
+                else:
+                    # List-of-tuples: values may not be serialisable; render
+                    # only the impl type, which is all the migration needs.
+                    return impl_repr
+
+    return False  # let Alembic render the type normally
