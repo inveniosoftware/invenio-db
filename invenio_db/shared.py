@@ -67,13 +67,10 @@ class UTCDateTime(TypeDecorator):
             msg = f"ERROR: value: {value} is not of type datetime."
             raise ValueError(msg)
 
-        if value.tzinfo not in (None, timezone.utc):
-            msg = (
-                f"Error: value: {value} doesn't have a tzinfo of None or timezone.utc."
-            )
-            raise ValueError(msg)
+        if value.tzinfo in (None, timezone.utc):
+            return value.replace(tzinfo=timezone.utc)
 
-        return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
 
 
 class Timestamp:
