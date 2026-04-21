@@ -4,6 +4,7 @@
 # Copyright (C) 2017-2018 CERN.
 # Copyright (C) 2022-2026 Graz University of Technology.
 # Copyright (C) 2026 University of Münster.
+# Copyright (C) 2026 CESNET z.s.p..
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -164,3 +165,44 @@ update_table_columns_column_type_to_datetime = partial(
     existing_type=_db.UTCDateTime,
     existing_nullable=True,
 )
+
+
+def alembic_render_item(type_, obj, autogen_context):
+    """Fix import generation and broken reprs for known types.
+
+    Alembic uses ``x.__repr__`` to generate the migration code. For ChoiceType,
+    it is broken - the generated repr does not include the ``choices`` argument.
+
+    This render function fixes it by emitting the ``choices`` argument explicitly.
+    """
+    if type_ == "type":
+        # --- ChoiceType fix ---------------------------------------------------
+        try:
+            from sqlalchemy_utils.types.choice import ChoiceType
+        except ImportError:
+            pass
+        else:
+            if isinstance(obj, ChoiceType):
+                from enum import Enum
+
+                from alembic.autogenerate.render import _repr_type
+
+                impl_repr = _repr_type(obj.impl_instance, autogen_context)
+
+                choices = obj.choices
+                if isinstance(choices, type) and issubclass(choices, Enum):
+                    # Enum class: emit ChoiceType(Severity, impl=sa.String(1))
+                    # and add the matching from-import.
+                    autogen_context.imports.add(
+                        f"from {choices.__module__} import {choices.__name__}"
+                    )
+                    return (
+                        f"sqlalchemy_utils.types.choice.ChoiceType("
+                        f"{choices.__name__}, impl={impl_repr})"
+                    )
+                else:
+                    # List-of-tuples: values may not be serialisable; render
+                    # only the impl type, which is all the migration needs.
+                    return impl_repr
+
+    return False  # let Alembic render the type normally

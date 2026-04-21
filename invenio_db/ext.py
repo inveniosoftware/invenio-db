@@ -29,7 +29,7 @@ from sqlalchemy_utils.functions import get_class_by_table
 
 from .cli import db as db_cmd
 from .shared import db
-from .utils import versioning_models_registered
+from .utils import alembic_render_item, versioning_models_registered
 
 logger = logging.getLogger(__name__)
 
@@ -126,13 +126,17 @@ class InvenioDB(object):
                 "version_locations": version_locations,
             },
         )
-        app.config.setdefault(
+        alembic_ctx = app.config.setdefault(
             "ALEMBIC_CONTEXT",
             {
                 "transaction_per_migration": True,
                 "compare_type": True,  # Allows to detect change of column type, accuracy depends on backend
             },
         )
+
+        # Add our render hook to influence how Alembic autogenerates migration scripts
+        if "render_item" not in alembic_ctx:
+            alembic_ctx["render_item"] = alembic_render_item
 
         self.alembic.init_app(app)
         app.extensions["invenio-db"] = self
