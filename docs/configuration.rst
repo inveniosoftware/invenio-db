@@ -33,6 +33,19 @@ packages.
    User class used by versioning manager. Defaults to ``'User'`` if
    ``invenio_accounts`` package is installed.
 
+
+.. data:: DB_SESSION_BIND_FUNC
+
+   Function used for dynamically selecting the SQLAlchemy session bind
+   engine/connection. The function accepts the ``db.session`` instance and the original
+   ``flask_sqlalchemy.session.Session.get_bind(*args, **kwargs)`` arguments, i.e. it is
+   like a method call. Defaults to ``None``.
+
+   This function is particularly useful for dynamic connection routing, e.g. in the case
+   of primary-replica database setups, where some read operations could be routed to a
+   read replica database, while write operations would go to the primary as normal.
+
+
 .. data:: ALEMBIC
 
    Dictionary containing general configuration for Flask-Alembic. It contains
@@ -50,5 +63,5 @@ packages.
 Please check following packages for further configuration options:
 
 1. `Flask-SQLAlchemy <https://flask-sqlalchemy.readthedocs.io/en/stable/config/>`_
-2. `Flask-Alembic <https://flask-alembic.readthedocs.io/en/stable/#configuration>`_
+2. `Flask-Alembic <https://flask-alembic.readthedocs.io/en/latest/config/>`_
 3. `SQLAlchemy-Continuum <https://sqlalchemy-continuum.readthedocs.io/en/latest/configuration.html>`_
