@@ -1,12 +1,7 @@
-# -*- coding: utf-8 -*-
-#
-# This file is part of Invenio.
-# Copyright (C) 2017-2018 CERN.
-# Copyright (C) 2022-2026 Graz University of Technology.
-# Copyright (C) 2026 University of Münster.
-#
-# Invenio is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# SPDX-FileCopyrightText: 2017-2018 CERN.
+# SPDX-FileCopyrightText: 2022-2026 Graz University of Technology.
+# SPDX-FileCopyrightText: 2026 University of Münster.
+# SPDX-License-Identifier: MIT
 # from .signals import secret_key_changed
 
 """Invenio-DB utility functions."""
