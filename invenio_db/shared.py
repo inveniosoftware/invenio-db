@@ -12,7 +12,7 @@
 from datetime import datetime, timezone
 
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
-from sqlalchemy import Column, MetaData, event, util
+from sqlalchemy import Column, MetaData, util
 from sqlalchemy.types import DateTime, TypeDecorator
 
 NAMING_CONVENTION = util.immutabledict(
@@ -79,9 +79,8 @@ class UTCDateTime(TypeDecorator):
 class Timestamp:
     """Adds `created` and `updated` columns to a derived declarative model.
 
-    The `created` column is handled through a default and the `updated`
-    column is handled through a `before_update` event that propagates
-    for all derived declarative models.
+    Both columns are handled via column-level defaults/onupdate, which fire
+    for both ORM-level and bulk SQL UPDATE statements.
 
     ::
 
@@ -99,18 +98,9 @@ class Timestamp:
     updated = Column(
         UTCDateTime,
         default=lambda: datetime.now(tz=timezone.utc),
+        onupdate=lambda: datetime.now(tz=timezone.utc),
         nullable=False,
     )
-
-
-@event.listens_for(Timestamp, "before_update", propagate=True)
-def timestamp_before_update(mapper, connection, target):
-    """Update timestamp on before_update event.
-
-    When a model with a timestamp is updated; force update the updated
-    timestamp.
-    """
-    target.updated = datetime.now(tz=timezone.utc)
 
 
 class SQLAlchemy(FlaskSQLAlchemy):
