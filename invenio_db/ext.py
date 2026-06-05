@@ -57,6 +57,20 @@ class InvenioAlembic(Alembic):
         """Initialize InvenioAlembic."""
         super().__init__(*args, **kwargs)
 
+    @property
+    def config(self):
+        """Temporary fix for bug in Flask-Alembic 3.2.0.
+
+        Flask-Alembic 3.2.0 sets "os" as path separator in Alembic config but still joins "version_locations" using ',',
+        leading to Alembic failing to split individual alembic version script locations correctly.
+        """
+        cfg = super().config
+        os_pathsep_version_locations = os.pathsep.join(
+            cfg.get_main_option("version_locations").split(",")
+        )
+        cfg.set_main_option("version_locations", os_pathsep_version_locations)
+        return cfg
+
     def _set_lock_timeout(self):
         """Set lock_timeout on all PostgreSQL migration connections."""
         for ctx in self.migration_contexts.values():
