@@ -9,6 +9,11 @@
 Changes
 =======
 
+Version v2.5.1 (released 2026-06-05)
+
+- fix(options): empty string is valid
+- fix(timezone): convert non utc to utc on load from db
+
 Version v2.5.0 (released 2026-03-24)
 
 - fix(test): close connections before drop the database
