@@ -361,6 +361,74 @@ def test_local_proxy(app, db):
         assert result == (True, True, True, True)
 
 
+def test_timestamp_bulk_update(db, app):
+    """Test that updated is refreshed when using a bulk Query.update()."""
+    import sqlalchemy as sa
+
+    class TimestampedModel(db.Model, db.Timestamp):
+        __tablename__ = "timestamped"
+        pk = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+        name = sa.Column(sa.String(50))
+
+    app.config["DB_VERSIONING"] = False
+    InvenioDB(app, entry_point_group=False, db=db)
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        obj = TimestampedModel(name="before")
+        db.session.add(obj)
+        db.session.commit()
+
+        updated_before = obj.updated
+
+        db.session.query(TimestampedModel).filter_by(pk=obj.pk).update(
+            {"name": "after"}
+        )
+        db.session.commit()
+
+        db.session.refresh(obj)
+        assert obj.updated > updated_before
+
+        db.drop_all()
+
+
+def test_timestamp_core_update(db, app):
+    """Test that updated is refreshed when using a Core update statement."""
+    from datetime import datetime, timezone
+
+    class TimestampedModel(db.Model, db.Timestamp):
+        __tablename__ = "timestamped"
+        pk = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+        name = sa.Column(sa.String(50))
+
+    app.config["DB_VERSIONING"] = False
+    InvenioDB(app, entry_point_group=False, db=db)
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        old_timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        obj = TimestampedModel(
+            name="before", created=old_timestamp, updated=old_timestamp
+        )
+        db.session.add(obj)
+        db.session.commit()
+
+        db.session.execute(
+            sa.update(TimestampedModel)
+            .where(TimestampedModel.pk == obj.pk)
+            .values(name="after")
+        )
+        db.session.commit()
+
+        db.session.refresh(obj)
+        assert obj.name == "after"
+        assert obj.updated > old_timestamp
+
+        db.drop_all()
+
+
 def test_db_create_alembic_upgrade(app, db):
     """Test that 'db create/drop' and 'alembic create' are compatible.
 
