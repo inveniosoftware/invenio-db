@@ -65,3 +65,4 @@ test.db
 
 # Vim swapfiles
 .*.sw?
+uv.lock
