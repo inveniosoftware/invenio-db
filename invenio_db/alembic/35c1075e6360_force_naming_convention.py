@@ -67,7 +67,7 @@ def upgrade():
                             fk["referred_table"],
                             fk["constrained_columns"],
                             fk["referred_columns"],
-                            **fk["options"]
+                            **fk["options"],
                         )
                 elif isinstance(c, sa.schema.UniqueConstraint):
                     key = tuple(c.columns.keys())
