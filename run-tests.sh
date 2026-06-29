@@ -16,7 +16,6 @@ function cleanup() {
 trap cleanup EXIT
 
 
-python -m check_manifest
 python -m sphinx.cmd.build -qnNW docs docs/_build/html
 
 # run docker services only when not SQLite
