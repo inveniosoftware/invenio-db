@@ -121,6 +121,7 @@ def alembic_test_context():
     return {
         "transaction_per_migration": True,
         "include_object": include_object,
+        "compare_server_default": True,
     }
 
 
