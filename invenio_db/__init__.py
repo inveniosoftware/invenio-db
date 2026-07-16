@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2015-2024 CERN.
 # SPDX-FileCopyrightText: 2024-2026 Graz University of Technology.
+# SPDX-FileCopyrightText: 2026 TU Wien.
 # SPDX-License-Identifier: MIT
 
 """Database management for Invenio.
@@ -87,7 +88,7 @@ version locations is assembled from ``invenio_db.alembic`` entry point group.
 from .ext import InvenioDB
 from .shared import db
 
-__version__ = "2.5.1"
+__version__ = "2.5.2"
 
 __all__ = (
     "__version__",
