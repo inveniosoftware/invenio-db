@@ -144,6 +144,9 @@ class InvenioDB(object):
         # Needed for before/after_flush/commit/rollback events
         app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", True)
 
+        # Set the session bind function
+        app.config.setdefault("DB_SESSION_BIND_FUNC", None)
+
         # Check if the DB is PostgreSQL. We don't include the `://` since the driver name
         # usually follows the `postgres` (e.g. `postgres+psycopg2`), and we don't know 100%
         # what the driver will be.
