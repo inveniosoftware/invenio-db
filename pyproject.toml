@@ -47,7 +47,7 @@ mysql = [
   "pymysql>=0.10.1",
 ]
 postgresql = [
-  "psycopg2-binary>=2.8.6",
+  "psycopg2>=2.8.6",
 ]
 tests = [
   "cryptography>=2.1.4",
