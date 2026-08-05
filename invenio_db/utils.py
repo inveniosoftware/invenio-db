@@ -122,6 +122,13 @@ def alembic_test_context():
         "transaction_per_migration": True,
         "include_object": include_object,
         "compare_server_default": True,
+        "autogenerate_plugins": [
+            # Alembic v1.19.0 introduced the a new CHECK constraint plugin which causes
+            # a few hiccups in our setup, so we disable it for now
+            # cf. https://alembic.sqlalchemy.org/en/latest/changelog.html#change-1.19.0
+            "alembic.autogenerate.*",
+            "~alembic.autogenerate.checkconstraint_byname",
+        ],
     }
 
 
