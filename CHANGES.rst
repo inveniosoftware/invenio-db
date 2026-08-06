@@ -7,6 +7,11 @@
 Changes
 =======
 
+Version v2.6.0 (released 2026-08-06)
+
+- fix(alembic): ignore the new "checkconstraint_byname" plugin for now
+- feat(tests): Comparing server defaults in alembic tests
+
 Version v2.5.2 (released 2026-07-16)
 
 - chore(setup): migrate from setuptools to hatchling

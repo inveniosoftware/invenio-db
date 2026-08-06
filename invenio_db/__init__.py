@@ -88,7 +88,7 @@ version locations is assembled from ``invenio_db.alembic`` entry point group.
 from .ext import InvenioDB
 from .shared import db
 
-__version__ = "2.5.2"
+__version__ = "2.6.0"
 
 __all__ = (
     "__version__",
