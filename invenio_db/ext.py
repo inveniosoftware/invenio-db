@@ -20,6 +20,7 @@ from flask import current_app
 from flask_alembic import Alembic
 from invenio_base.utils import entry_points
 from sqlalchemy.exc import OperationalError
+from sqlalchemy_continuum.unit_of_work import UnitOfWork
 from sqlalchemy_utils.functions import get_class_by_table
 
 from .cli import db as db_cmd
@@ -27,6 +28,18 @@ from .shared import db
 from .utils import versioning_models_registered
 
 logger = logging.getLogger(__name__)
+
+
+class InvenioVersionUnitOfWork(UnitOfWork):
+    """UnitOfWork that releases its private version-session savepoint."""
+
+    def make_versions(self, session):
+        """Override parent make_version to commit version session."""
+        super().make_versions(session)
+
+        # this removes the "nested transaction already deassociated from
+        # connection" SAWarning in the tests
+        self.version_session.commit()
 
 
 class InvenioAlembic(Alembic):
@@ -243,6 +256,9 @@ class InvenioDB(object):
             user_cls = app.config.get("DB_VERSIONING_USER_MODEL")
 
         plugins = [FlaskPlugin()] if user_cls else []
+
+        # the only working way to inject the custom UnitOfWork class
+        default_vm.uow_class = InvenioVersionUnitOfWork
 
         # Call make_versioned() before your models are defined.
         self.versioning_manager = versioning_manager or default_vm
