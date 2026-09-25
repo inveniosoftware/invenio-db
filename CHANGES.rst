@@ -7,6 +7,10 @@
 Changes
 =======
 
+Version v2.6.1 (released 2026-09-25)
+
+- fix(setup): pin SQLAlchemy below 2.1
+
 Version v2.6.0 (released 2026-08-06)
 
 - fix(alembic): ignore the new "checkconstraint_byname" plugin for now
