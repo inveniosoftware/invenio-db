@@ -7,6 +7,11 @@
 Changes
 =======
 
+Version v2.7.0 (released 2026-11-24)
+
+- feat(session): allow configuring session bind behavior
+- fix(docs): broken Flask-Alembic link
+
 Version v2.6.1 (released 2026-09-25)
 
 - fix(setup): pin SQLAlchemy below 2.1
