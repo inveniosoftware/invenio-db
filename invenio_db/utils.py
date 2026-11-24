@@ -6,12 +6,13 @@
 
 """Invenio-DB utility functions."""
 
+from contextlib import contextmanager
 from functools import partial
 
 from alembic import op
 from alembic.migration import MigrationContext
 from flask import current_app
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 
 from .proxies import current_db
 from .shared import db as _db
@@ -59,6 +60,50 @@ def rebuild_encrypted_properties(old_key, model, properties, db=_db):
         update_values = dict(zip(properties, old_entries))
         model.query.filter_by(**primary_key_fields).update(update_values)
     db.session.commit()
+
+
+@contextmanager
+def read_only_session(db=_db):
+    """Run the session's queries in autocommit mode inside the block.
+
+    Meant for read-only work: each statement runs in its own transaction, so a
+    long read loop does not keep a transaction open (holding table locks and a
+    pinned connection) between queries. Writes in the block commit
+    immediately. The mode ends with the block, or earlier if anything in it
+    commits or rolls back. An open transaction that has only read is ended
+    first; one with writes raises. Streaming queries (``yield_per``) need a
+    transaction and fail inside it.
+    """
+    session = db.session()
+    if session.in_transaction():
+        # A transaction that has only read can end without losing anything
+        if _has_writes(session):
+            raise RuntimeError(
+                "read_only_session() can't end a transaction that has writes."
+            )
+        session.rollback()
+
+    session.connection(execution_options={"isolation_level": "AUTOCOMMIT"})
+    try:
+        yield session
+    finally:
+        # Rollback, not close, so objects the caller loaded stay attached.
+        # The pool resets the isolation level when the connection is returned.
+        session.rollback()
+
+
+def _has_writes(session):
+    """Whether the session's transaction has pending or executed writes."""
+    if session.new or session.dirty or session.deleted:
+        return True
+    if session.in_nested_transaction():
+        return True
+    connection = session.connection()
+    if connection.dialect.name != "postgresql":
+        return True
+    # PostgreSQL assigns a transaction ID only once the transaction writes
+    query = text("SELECT txid_current_if_assigned()")
+    return connection.execute(query).scalar() is not None
 
 
 def create_alembic_version_table():
